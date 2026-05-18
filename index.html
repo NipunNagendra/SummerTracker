@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quant Prep · Summer 2026 — Nipun N.</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f6f1;
+    --surface: #ffffff;
+    --surface-2: #fbfaf6;
+    --border: #e6e3dc;
+    --border-strong: #cfcbc1;
+    --text: #1c1c1c;
+    --text-muted: #6b6b66;
+    --text-soft: #8a8a83;
+    --navy: #1e3a5f;
+    --navy-light: #4a6fa5;
+    --accent: #b45309;
+    --green: #2d6a4f;
+    --green-bg: #e6f0ea;
+    --red: #9b1c1c;
+    --red-bg: #fbe9e9;
+    --yellow-bg: #fef7d8;
+    --blue-bg: #e6edf5;
+    --shadow: 0 1px 2px rgba(20,20,20,.04);
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; }
+  a { color: var(--navy); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; text-decoration-color: var(--border-strong); }
+  a:hover { text-decoration-color: var(--navy); }
+  button { font-family: inherit; font-size: inherit; cursor: pointer; }
+  input, textarea, select { font-family: inherit; font-size: inherit; color: var(--text); }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px 0;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .header-top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
+  .header-top h1 { font-size: 22px; }
+  .header-top h1 .accent { color: var(--accent); font-style: italic; }
+  .header-sub { color: var(--text-muted); font-size: 12px; }
+  .header-sub .mono { color: var(--text); }
+  nav.tabs { display: flex; gap: 2px; overflow-x: auto; margin: 0 -24px; padding: 0 24px; }
+  nav.tabs button {
+    background: transparent; border: none; padding: 10px 14px 12px;
+    color: var(--text-muted); border-bottom: 2px solid transparent;
+    white-space: nowrap; font-size: 13px; font-weight: 500;
+    transition: color .12s, border-color .12s;
+  }
+  nav.tabs button:hover { color: var(--text); }
+  nav.tabs button.active { color: var(--navy); border-bottom-color: var(--navy); }
+
+  /* LAYOUT */
+  main { max-width: 1280px; margin: 0 auto; padding: 24px; }
+  section.tab-panel { display: none; }
+  section.tab-panel.active { display: block; }
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 880px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+  /* CARDS */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
+  }
+  .card h2, .card h3, .card h4 { margin-bottom: 8px; }
+  .card h3 { font-size: 16px; }
+  .card h4 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; font-family: inherit; }
+  .card-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+
+  /* COUNTDOWNS */
+  .countdown-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .countdown {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px;
+  }
+  .countdown .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 600; }
+  .countdown .value { font-family: 'Fraunces', serif; font-size: 32px; line-height: 1.1; color: var(--navy); margin-top: 4px; }
+  .countdown .value .unit { font-size: 13px; color: var(--text-muted); font-family: inherit; margin-left: 4px; }
+  .countdown .date { font-size: 11px; color: var(--text-soft); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+  .countdown.past .value { color: var(--text-soft); }
+
+  /* STATS */
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .stat {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 10px 12px;
+  }
+  .stat .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 600; }
+  .stat .value { font-family: 'JetBrains Mono', monospace; font-size: 22px; color: var(--text); margin-top: 2px; }
+  .stat .delta { font-size: 11px; color: var(--text-soft); margin-top: 2px; }
+  .stat .delta.up { color: var(--green); }
+  .stat .delta.down { color: var(--red); }
+
+  /* TASKS */
+  .task-list { list-style: none; padding: 0; }
+  .task {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px dashed var(--border);
+    font-size: 13px;
+  }
+  .task:last-child { border-bottom: none; }
+  .task input[type="checkbox"] {
+    margin-top: 3px; flex-shrink: 0; cursor: pointer;
+    width: 16px; height: 16px; accent-color: var(--navy);
+  }
+  .task label { cursor: pointer; flex: 1; }
+  .task.done label { color: var(--text-soft); text-decoration: line-through; }
+  .task .tag {
+    display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px;
+    background: var(--blue-bg); color: var(--navy);
+    text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+    margin-right: 6px; vertical-align: 1px;
+  }
+  .task .tag.daily { background: var(--yellow-bg); color: var(--accent); }
+  .task .tag.milestone { background: var(--green-bg); color: var(--green); }
+
+  /* CATEGORY BLOCK in WEEK */
+  .week-card { margin-bottom: 16px; }
+  .week-card.current { border-color: var(--navy); border-width: 2px; }
+  .week-card.current .week-header { background: var(--blue-bg); }
+  .week-card.past { opacity: 0.65; }
+  .week-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; cursor: pointer; user-select: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    margin: -16px -16px 12px; border-bottom: 1px solid var(--border);
+  }
+  .week-card.current .week-header { margin: -16px -16px 12px; border-bottom: 1px solid var(--navy); }
+  .week-header h3 { margin: 0; font-size: 15px; display: flex; align-items: baseline; gap: 8px; }
+  .week-header .week-dates { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); font-weight: 400; }
+  .week-header .week-progress { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .week-card.current .week-progress { color: var(--navy); font-weight: 500; }
+  .week-card.collapsed .week-body { display: none; }
+  .week-card .toggle-icon { color: var(--text-muted); margin-left: 8px; transition: transform .15s; }
+  .week-card.collapsed .toggle-icon { transform: rotate(-90deg); }
+  .week-card.current .badge {
+    background: var(--navy); color: white; font-size: 10px; padding: 2px 6px;
+    border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+  }
+  .week-milestone {
+    background: var(--green-bg); border-left: 3px solid var(--green);
+    padding: 8px 12px; margin-top: 12px; font-size: 12px; border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .week-milestone strong { color: var(--green); }
+  .cat-block { margin-bottom: 12px; }
+  .cat-block h4 { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .cat-block .cat-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+  .cat-shay .cat-dot { background: var(--navy); }
+  .cat-mental .cat-dot { background: var(--accent); }
+  .cat-prob .cat-dot { background: #7c3aed; }
+  .cat-code .cat-dot { background: var(--green); }
+  .cat-project .cat-dot { background: #c2410c; }
+  .cat-network .cat-dot { background: #0e7490; }
+  .cat-fe .cat-dot { background: #9333ea; }
+
+  /* PHASE HEADER */
+  .phase-header {
+    margin: 24px 0 12px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-strong);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .phase-header h2 { font-size: 18px; }
+  .phase-header .phase-meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); }
+
+  /* PROGRESS BAR */
+  .pbar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+  .pbar > div { height: 100%; background: var(--navy); transition: width .2s; }
+  .pbar-row { display: flex; align-items: center; gap: 8px; }
+  .pbar-row .pbar { flex: 1; }
+  .pbar-row .pbar-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); min-width: 36px; text-align: right; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--navy); color: white; border: 1px solid var(--navy);
+    padding: 7px 12px; border-radius: var(--radius);
+    font-size: 12px; font-weight: 500; transition: opacity .15s;
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn.secondary { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
+  .btn.danger { background: var(--surface); color: var(--red); border-color: var(--border-strong); }
+  .btn.danger:hover { background: var(--red-bg); }
+  .btn.small { padding: 4px 8px; font-size: 11px; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  /* FORMS */
+  input[type="text"], input[type="number"], input[type="date"], textarea, select {
+    background: var(--surface); border: 1px solid var(--border-strong);
+    padding: 7px 9px; border-radius: var(--radius); width: 100%;
+    transition: border-color .12s;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--navy); }
+  textarea { resize: vertical; min-height: 60px; font-family: inherit; }
+  .field { margin-bottom: 10px; }
+  .field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+  .field-row { display: flex; gap: 8px; }
+  .field-row .field { flex: 1; }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 600; padding: 8px 10px; border-bottom: 2px solid var(--border-strong); background: var(--surface-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: var(--surface-2); }
+  .table-wrap { overflow-x: auto; }
+
+  /* BOOK / RESOURCE ITEMS */
+  .resource-item, .book-item {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px;
+  }
+  .resource-item .res-title, .book-item .book-title {
+    font-weight: 500; font-size: 13px; margin-bottom: 2px;
+  }
+  .resource-item .res-meta, .book-item .book-meta {
+    font-size: 11px; color: var(--text-muted);
+  }
+  .resource-item .res-link { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .priority-tag {
+    display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-left: 6px;
+  }
+  .priority-must { background: var(--red-bg); color: var(--red); }
+  .priority-high { background: var(--yellow-bg); color: var(--accent); }
+  .priority-med { background: var(--blue-bg); color: var(--navy); }
+
+  /* CHART */
+  .chart-wrap { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; }
+  svg.chart { width: 100%; height: 220px; }
+  .chart-axis { stroke: var(--border-strong); stroke-width: 1; }
+  .chart-grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2,3; }
+  .chart-line { stroke: var(--navy); stroke-width: 2; fill: none; }
+  .chart-point { fill: var(--navy); stroke: white; stroke-width: 2; }
+  .chart-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: var(--text-muted); }
+
+  /* STATUS PILLS */
+  .pill {
+    display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 10px;
+    background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border);
+  }
+  .pill.green { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+  .pill.yellow { background: var(--yellow-bg); color: var(--accent); border-color: var(--accent); }
+  .pill.gray { background: var(--surface-2); color: var(--text-soft); }
+  .pill.navy { background: var(--blue-bg); color: var(--navy); border-color: var(--navy-light); }
+
+  /* CONTACTS / NETWORKING */
+  .contact-card {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px; margin-bottom: 8px; background: var(--surface-2);
+  }
+  .contact-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .contact-name { font-weight: 500; }
+  .contact-meta { font-size: 12px; color: var(--text-muted); }
+  .contact-notes { font-size: 12px; margin-top: 6px; color: var(--text); }
+
+  /* NOTES */
+  .notes-week-block { margin-bottom: 16px; }
+  .notes-week-block textarea { min-height: 80px; }
+
+  /* HELPERS */
+  .muted { color: var(--text-muted); }
+  .small { font-size: 12px; }
+  .right { text-align: right; }
+  .center { text-align: center; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .mt-16 { margin-top: 16px; }
+  .hidden { display: none !important; }
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 24px; color: var(--text-soft); font-size: 13px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: var(--text); color: white; padding: 10px 16px;
+    border-radius: var(--radius); font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .2s;
+    pointer-events: none; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    main { padding: 16px; }
+    header { padding: 12px 16px 0; }
+    .header-top h1 { font-size: 18px; }
+    .countdown .value { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <h1>Quant Prep <span class="accent">·</span> Summer 2026</h1>
+      <div class="header-sub">Nipun Nagendra · Cornell '29 · Shay Capital · <span class="mono" id="today-date"></span></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn small secondary" id="export-data">Export</button>
+      <button class="btn small secondary" id="import-data">Import</button>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+      <button class="btn small danger" id="reset-data">Reset</button>
+    </div>
+  </div>
+  <nav class="tabs" id="tab-nav">
+    <button data-tab="dashboard" class="active">Today</button>
+    <button data-tab="plan">Weekly Plan</button>
+    <button data-tab="metrics">Metrics</button>
+    <button data-tab="resources">Resources</button>
+    <button data-tab="network">Networking</button>
+    <button data-tab="notes">Notes</button>
+    <button data-tab="narrative">Narrative</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ───────────────────────── DASHBOARD ───────────────────────── -->
+  <section class="tab-panel active" id="tab-dashboard">
+
+    <div class="card mb-16">
+      <h3>Countdowns</h3>
+      <div class="countdown-grid" id="countdowns"></div>
+    </div>
+
+    <div class="grid grid-3">
+
+      <div class="card">
+        <div class="card-title-row">
+          <h3 style="font-size:15px;">This Week</h3>
+          <span class="pill navy mono" id="current-week-tag">—</span>
+        </div>
+        <div id="current-week-summary" class="small muted">Loading...</div>
+        <div class="pbar-row mt-12">
+          <div class="pbar"><div id="current-week-bar" style="width:0%"></div></div>
+          <span class="pbar-label" id="current-week-pct">0%</span>
+        </div>
+        <button class="btn small mt-12" onclick="switchTab('plan'); setTimeout(scrollToCurrentWeek, 50)">Go to plan →</button>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:15px;">Quick Stats</h3>
+        <div class="stat-row mt-8" id="quick-stats"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:15px;">Daily Drills</h3>
+        <p class="small muted mb-8">Every weekday during internship</p>
+        <ul class="task-list" id="daily-drills"></ul>
+      </div>
+
+    </div>
+
+    <div class="card mt-16">
+      <div class="card-title-row">
+        <h3>This Week's Tasks</h3>
+        <span class="small muted mono" id="this-week-task-count"></span>
+      </div>
+      <div id="this-week-tasks"></div>
+    </div>
+
+    <div class="grid grid-2 mt-16">
+      <div class="card">
+        <h3 style="font-size:15px;">Log Zetamac Score</h3>
+        <p class="small muted mb-8">8 min · 0–100 setting. Target: 60+ → 80+ for Optiver gates.</p>
+        <div class="field-row">
+          <div class="field"><label>Score</label><input type="number" id="zm-score-quick" min="0" max="200"></div>
+          <div class="field"><label>Mode</label>
+            <select id="zm-mode-quick">
+              <option value="0-100 / 8min">0–100 / 8min (default)</option>
+              <option value="0-100 / 2min">0–100 / 2min</option>
+              <option value="0-50 / 2min">0–50 / 2min</option>
+              <option value="custom">custom</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn small" onclick="addZetamacQuick()">Add to log</button>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:15px;">LeetCode Quick-Log</h3>
+        <p class="small muted mb-8">Track problems solved (Java preferred for CS 2110 + interview consistency).</p>
+        <div class="btn-row">
+          <button class="btn small secondary" onclick="incrementLC('easy')">+1 Easy</button>
+          <button class="btn small secondary" onclick="incrementLC('medium')">+1 Medium</button>
+          <button class="btn small secondary" onclick="incrementLC('hard')">+1 Hard</button>
+        </div>
+        <div class="stat-row mt-12" id="lc-quick-stats"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ───────────────────────── WEEKLY PLAN ───────────────────────── -->
+  <section class="tab-panel" id="tab-plan">
+    <div class="card mb-16">
+      <div class="card-title-row">
+        <h3>Weekly Plan · May 18 → Aug 31</h3>
+        <div class="btn-row">
+          <button class="btn small secondary" onclick="expandAllWeeks()">Expand all</button>
+          <button class="btn small secondary" onclick="collapseAllWeeks()">Collapse all</button>
+        </div>
+      </div>
+      <p class="small muted">Tasks tagged <span class="tag" style="background:var(--yellow-bg);color:var(--accent);font-size:10px;padding:1px 6px;border-radius:3px;">DAILY</span> repeat every weekday. Tasks tagged <span class="tag" style="background:var(--green-bg);color:var(--green);font-size:10px;padding:1px 6px;border-radius:3px;">MILESTONE</span> are the week's anchor. Current week auto-expands and is highlighted.</p>
+    </div>
+    <div id="weeks-container"></div>
+  </section>
+
+  <!-- ───────────────────────── METRICS ───────────────────────── -->
+  <section class="tab-panel" id="tab-metrics">
+
+    <div class="card mb-16">
+      <h3>Zetamac Progress</h3>
+      <p class="small muted mb-12">Optiver/Flow Traders gates: 75-in-10 (pass ~60) and 80-in-8 (pass ~60). Build to comfortable 70+ on 0–100/8min before sophomore apps open Aug 2026.</p>
+      <div class="field-row mb-12">
+        <div class="field"><label>Date</label><input type="date" id="zm-date"></div>
+        <div class="field"><label>Score</label><input type="number" id="zm-score" min="0" max="200"></div>
+        <div class="field"><label>Mode</label>
+          <select id="zm-mode">
+            <option value="0-100 / 8min">0–100 / 8min</option>
+            <option value="0-100 / 2min">0–100 / 2min</option>
+            <option value="0-50 / 2min">0–50 / 2min</option>
+            <option value="custom">custom</option>
+          </select>
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end;"><button class="btn" onclick="addZetamac()">+ Add</button></div>
+      </div>
+      <div class="chart-wrap mb-12" id="zm-chart-wrap"></div>
+      <div class="table-wrap">
+        <table id="zm-table">
+          <thead><tr><th>Date</th><th>Score</th><th>Mode</th><th>vs Prev</th><th></th></tr></thead>
+          <tbody id="zm-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-16">
+      <h3>LeetCode Tracker</h3>
+      <p class="small muted mb-12">Recommended summer target: 60+ mediums by end of August (≈5/week). HRT/Jane Street favor mediums and harder graph/DP. Use Java since you'll have CS 2110 fluency and consistency wins on superdays.</p>
+      <div class="field-row mb-12">
+        <div class="field"><label>Date</label><input type="date" id="lc-date"></div>
+        <div class="field"><label>Difficulty</label>
+          <select id="lc-diff"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>
+        </div>
+        <div class="field"><label>Problem (optional)</label><input type="text" id="lc-name" placeholder="e.g., Two Sum"></div>
+        <div class="field"><label>Topic (optional)</label>
+          <select id="lc-topic">
+            <option value="">—</option>
+            <option>array</option><option>hashmap</option><option>two-pointer</option>
+            <option>sliding-window</option><option>binary-search</option><option>tree</option>
+            <option>graph</option><option>dp</option><option>backtracking</option>
+            <option>heap</option><option>greedy</option><option>math</option><option>bit</option>
+          </select>
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end;"><button class="btn" onclick="addLC()">+ Log</button></div>
+      </div>
+      <div class="stat-row mb-12" id="lc-stats"></div>
+      <div class="table-wrap">
+        <table id="lc-table">
+          <thead><tr><th>Date</th><th>Diff</th><th>Problem</th><th>Topic</th><th></th></tr></thead>
+          <tbody id="lc-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-16">
+      <h3>Book Progress</h3>
+      <p class="small muted mb-12">Update current chapter as you go. Status auto-updates from progress.</p>
+      <div id="books-progress"></div>
+    </div>
+
+  </section>
+
+  <!-- ───────────────────────── RESOURCES ───────────────────────── -->
+  <section class="tab-panel" id="tab-resources">
+
+    <div class="card mb-16">
+      <h3>Books · Core Reading</h3>
+      <p class="small muted mb-12">The five books that show up across every quant superday. Mark used/done as you work through them.</p>
+      <div id="books-list"></div>
+    </div>
+
+    <div class="card mb-16">
+      <h3>Practice Sites & Tools</h3>
+      <div id="sites-list"></div>
+    </div>
+
+    <div class="card mb-16">
+      <h3>Firm-Specific Prep Pages</h3>
+      <p class="small muted mb-12">Bookmark these and check the application portals weekly starting late June.</p>
+      <div id="firms-list"></div>
+    </div>
+
+    <div class="card mb-16">
+      <h3>Free Credentials Worth Doing</h3>
+      <p class="small muted mb-12">Low-effort, real signal for sophomore applications.</p>
+      <div id="creds-list"></div>
+    </div>
+
+  </section>
+
+  <!-- ───────────────────────── NETWORKING ───────────────────────── -->
+  <section class="tab-panel" id="tab-network">
+
+    <div class="card mb-16">
+      <h3>Add Contact</h3>
+      <div class="grid grid-2">
+        <div class="field"><label>Name</label><input type="text" id="ct-name" placeholder="First Last"></div>
+        <div class="field"><label>Firm</label><input type="text" id="ct-firm" placeholder="Goldman, Jane Street, ..."></div>
+        <div class="field"><label>Role / Team</label><input type="text" id="ct-role" placeholder="Recruiter, QR Analyst, ..."></div>
+        <div class="field"><label>Source / How met</label><input type="text" id="ct-source" placeholder="GS Possibilities, FE Mixer, ..."></div>
+        <div class="field"><label>Last Contact</label><input type="date" id="ct-last"></div>
+        <div class="field"><label>Next Follow-up</label><input type="date" id="ct-next"></div>
+        <div class="field"><label>Status</label>
+          <select id="ct-status">
+            <option>Cold</option><option>Reached out</option><option>Responded</option>
+            <option>Coffee chat done</option><option>Multi-touch</option><option>Referral path</option>
+            <option>Dormant</option>
+          </select>
+        </div>
+        <div class="field"><label>LinkedIn / Email</label><input type="text" id="ct-link"></div>
+      </div>
+      <div class="field"><label>Notes</label><textarea id="ct-notes" placeholder="What they said, what to follow up on, common ground, ..."></textarea></div>
+      <button class="btn" onclick="addContact()">+ Save contact</button>
+    </div>
+
+    <div class="card mb-16">
+      <div class="card-title-row">
+        <h3>Contacts</h3>
+        <div class="btn-row">
+          <input type="text" id="ct-filter" placeholder="filter..." style="width:180px;font-size:12px;padding:5px 8px;">
+          <select id="ct-sort" style="width:160px;font-size:12px;padding:5px 8px;">
+            <option value="recent">Most recent</option>
+            <option value="next">Next follow-up</option>
+            <option value="firm">By firm</option>
+            <option value="status">By status</option>
+          </select>
+        </div>
+      </div>
+      <div id="contacts-list"></div>
+    </div>
+
+    <div class="card mb-16">
+      <h3>Starter Outreach Checklist</h3>
+      <ul class="task-list" id="network-starter"></ul>
+    </div>
+
+  </section>
+
+  <!-- ───────────────────────── NOTES ───────────────────────── -->
+  <section class="tab-panel" id="tab-notes">
+
+    <div class="card mb-16">
+      <h3>Scratchpad / General Notes</h3>
+      <p class="small muted mb-8">Everything you want to remember but doesn't belong to a specific week.</p>
+      <textarea id="general-notes" style="min-height:160px;" placeholder="Things you've learned, terminology heard at Shay, market structure questions, project ideas, brainteaser solutions you want to remember..."></textarea>
+    </div>
+
+    <div class="card mb-16">
+      <h3>Per-Week Notes</h3>
+      <p class="small muted mb-12">A note field for every week of the plan. Auto-saves.</p>
+      <div id="weekly-notes"></div>
+    </div>
+
+  </section>
+
+  <!-- ───────────────────────── NARRATIVE ───────────────────────── -->
+  <section class="tab-panel" id="tab-narrative">
+
+    <div class="card mb-16">
+      <h3>Quant Narrative · Your Story in One Frame</h3>
+      <p class="small muted mb-12">Use this as the spine for coffee chats, networking emails, and "tell me about yourself." Refine in the editable version below as you collect feedback.</p>
+      <div style="background:var(--yellow-bg);border-left:3px solid var(--accent);padding:12px 14px;border-radius:0 var(--radius) var(--radius) 0;font-size:13px;line-height:1.6;">
+        <em>"I'm a Cornell math + stat student interested in quant finance because I like extracting signal from noisy systems. My background started in astrophysics — I worked on a CMB/SZ detection pipeline using Fourier-space matched filters and statistical noise modeling at <a href="#">~9M-pixel scale</a>. I've also built mobility-prediction tools using ride-flow data, and I run a small personal portfolio where I test systematic ideas with Monte Carlo simulation. This summer at Shay Capital I want to connect those technical skills to how real markets behave — research process, trading intuition, risk-aware strategy evaluation."</em>
+      </div>
+      <div class="field mt-12"><label>Your Personal Edit (saves automatically)</label>
+        <textarea id="narrative-edit" style="min-height:180px;"></textarea>
+      </div>
+    </div>
+
+    <div class="card mb-16">
+      <h3>Project Reframing · Astrophysics → Quant Language</h3>
+      <p class="small muted mb-12">When someone reads your GitHub, this is what should jump out. Use these one-liners on resumes and in chats.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:20%">Project</th><th style="width:40%">Astrophysics framing (resume now)</th><th style="width:40%">Quant framing (use this)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>CMB-SZ Pipeline</strong></td><td>Multi-frequency component separation, matched filters, pseudo-Cℓ estimators, Fourier-space signal extraction on Nside=2048 maps.</td><td>Built an end-to-end pipeline for extracting weak signals from noisy high-dimensional data using Fourier-space matched filters, covariance/noise modeling, and threshold-based detection. Directly analogous to alpha extraction from noisy market signals.</td></tr>
+            <tr><td><strong>Rideflow / Yelo</strong></td><td>NYC taxi data, grid heatmaps, time-bucketed flow, social hotspot prediction.</td><td>Real-time event prediction from streaming alt-data: detect regime shifts, momentum/convergence, sparse vs high-volume conditions. Analogous to order-flow signal detection and microstructure modeling.</td></tr>
+            <tr><td><strong>Portfolio Sim</strong></td><td>Personal equity portfolio, RSI/momentum, Monte Carlo with correlated GBM.</td><td>Systematic strategy research notebook with explicit hypothesis, transaction costs, walk-forward validation, drawdown/Sharpe/hit-rate metrics, and benchmark comparison.</td></tr>
+            <tr><td><strong>FTC Robotics</strong></td><td>Pure pursuit, Kalman filters, Bezier curves, FSMs, PID, vector fields.</td><td>Real-time state estimation under noisy sensor data, optimization-driven control, deterministic algorithm implementation under latency constraints. Quant analogue: execution algos and filtering.</td></tr>
+            <tr><td><strong>HSRA Publications</strong></td><td>Co-authored 2 pubs on celestial density-size law; OLS, k-fold CV, permutation tests.</td><td>Rigorous statistical inference under model uncertainty: cross-validation, permutation testing, hypothesis falsification.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-16">
+      <h3>The Sanskrit Metaphysics Angle</h3>
+      <p class="small muted mb-12">Mentioned in your context — this is a real differentiator for firms that read beyond technical identity (Citadel cultural fit, Two Sigma intellectual breadth, Bridgewater principles-based interviews). Use sparingly and only when it lands organically.</p>
+      <div style="background:var(--blue-bg);padding:12px 14px;border-radius:var(--radius);font-size:13px;line-height:1.7;">
+        <strong>When it works:</strong> A coffee chat veers into "what else are you into" or "what books are you reading." A Bridgewater-style behavioral question about how you think. A Jane Street fit chat where they're probing intellectual style.<br><br>
+        <strong>The hook:</strong> The Vedanta / Samkhya distinction between observer and observed, or the Yoga Sutras framing of <em>vrittis</em> (mental fluctuations as noise to be filtered) maps directly onto signal-vs-noise epistemology. You think about markets the same way you think about consciousness: what's the actual structure underneath the volatility.<br><br>
+        <strong>When NOT to use it:</strong> First-round technical screens. Anything where time pressure matters. Don't lead with it on resumes. It works as the second or third thing they learn about you, never the first.
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STORAGE ADAPTER — uses window.storage if present (Claude artifact),
+// else localStorage (downloaded standalone), else in-memory (last resort).
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const Mem = {};
+const Store = {
+  async get(key, fallback = null) {
+    try {
+      if (window.storage && typeof window.storage.get === 'function') {
+        const r = await window.storage.get(key);
+        if (r && r.value != null) return JSON.parse(r.value);
+        return fallback;
+      }
+    } catch (e) { /* fall through */ }
+    try {
+      const v = localStorage.getItem(key);
+      return v != null ? JSON.parse(v) : fallback;
+    } catch (e) {
+      return Mem[key] != null ? Mem[key] : fallback;
+    }
+  },
+  async set(key, value) {
+    const v = JSON.stringify(value);
+    try {
+      if (window.storage && typeof window.storage.set === 'function') {
+        await window.storage.set(key, v);
+        return;
+      }
+    } catch (e) { /* fall through */ }
+    try {
+      localStorage.setItem(key, v);
+      return;
+    } catch (e) {
+      Mem[key] = value;
+    }
+  },
+  async listKeys() {
+    try {
+      if (window.storage && typeof window.storage.list === 'function') {
+        const r = await window.storage.list();
+        return r ? r.keys : [];
+      }
+    } catch (e) { /* fall through */ }
+    try {
+      return Object.keys(localStorage);
+    } catch (e) {
+      return Object.keys(Mem);
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PLAN DATA — Week-by-week from May 18 → Aug 31, 2026
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const KEY_DATES = {
+  feStart:      { d: '2026-05-27', label: 'Fundamental Edge starts' },
+  shayStart:    { d: '2026-06-01', label: 'Shay Capital Day 1' },
+  feMixer:      { d: '2026-06-11', label: 'FE Intern Mixer (Midtown NYC)' },
+  feMidpoint:   { d: '2026-07-04', label: 'FE Week 5 / Midsummer' },
+  feEnd:        { d: '2026-07-31', label: 'Fundamental Edge ends' },
+  shayEnd:      { d: '2026-08-14', label: 'Shay Capital last day' },
+  appsOpen:     { d: '2026-08-15', label: 'Apps window opens (HRT, JS FTTP)' },
+  fallStart:    { d: '2026-08-26', label: 'Cornell Fall 2026 starts (approx)' }
+};
+
+const PHASES = [
+  { id: 'p0', name: 'Phase 0 · Pre-Start', meta: 'May 18 → May 31', weeks: ['w0a','w0b'] },
+  { id: 'p1', name: 'Phase 1 · Ramp-Up',   meta: 'Jun 1 → Jun 21',  weeks: ['w1','w2','w3'] },
+  { id: 'p2', name: 'Phase 2 · Build',     meta: 'Jun 22 → Jul 19', weeks: ['w4','w5','w6','w7'] },
+  { id: 'p3', name: 'Phase 3 · Polish',    meta: 'Jul 20 → Aug 16', weeks: ['w8','w9','w10','w11'] },
+  { id: 'p4', name: 'Phase 4 · Apps Window', meta: 'Aug 17 → Aug 31', weeks: ['w12','w13'] }
+];
+
+const WEEKS = {
+
+  w0a: {
+    title: 'Week 0 · Pre-Start',
+    dates: 'May 18 – May 24',
+    startDate: '2026-05-18', endDate: '2026-05-24',
+    categories: {
+      shay: [
+        { id: 'logistics', label: 'Confirm logistics with Marc Lewis: start date, address, attire, badge, first-day contact' },
+        { id: 'commute',   label: 'Plan Midtown commute: housing, transit pass, walking route to Shay office' },
+        { id: 'questions', label: 'Draft 3 thoughtful questions for Day 1 (process, team, what success looks like at week 2/6/10)' }
+      ],
+      fe: [
+        { id: 'fe-prework', label: 'Begin FE pre-work (~8 hrs total): glossary, modeling primer, AI workflow setup' },
+        { id: 'fe-cal', label: 'Add all 10 live FE sessions to calendar (Wed evenings + May 27 + Jul 31)' }
+      ],
+      mental_math: [
+        { id: 'zm-setup', label: 'Set up Zetamac (arithmetic.zetamac.com). Run 3 baseline 0–100/8min sessions. Log scores in Metrics tab.', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'zhou-get', label: 'Acquire Zhou "Practical Guide to Quant Interviews" (green book) + Crack "Heard on the Street" (PDF/used copy)' },
+        { id: 'zhou-1', label: 'Zhou Ch. 1 (Brain Teasers / general problem-solving)' }
+      ],
+      code: [
+        { id: 'java-refresh', label: 'Java refresh: HashMap, ArrayList, Set, Queue, Deque, PriorityQueue, TreeMap — 30 min review' },
+        { id: 'lc-easy-5', label: 'LeetCode: 5 easies in Java (arrays + strings). Log in Metrics tab.' }
+      ],
+      project: [
+        { id: 'cmb-audit', label: 'Audit CMB-SZ GitHub repo: list README weaknesses, missing visuals, unreproducible parts' },
+        { id: 'github-pin', label: 'Pin CMB-SZ + Rideflow repos on github.com/NipunNagendra profile' }
+      ],
+      network: [
+        { id: 'li-fe', label: 'LinkedIn: connect with Brett Caughran, Andrew Carr, Marc Greenberg (FE instructors) — note FE cohort' },
+        { id: 'li-shay', label: 'LinkedIn: follow Shay Capital page + Andrew Meehan + Marc Lewis (don\'t connect yet)' }
+      ]
+    },
+    milestone: 'Zetamac baseline scored · FE pre-work started · Day 1 ready'
+  },
+
+  w0b: {
+    title: 'Week 0 · Final Prep + FE Foundational Seminar',
+    dates: 'May 25 – May 31',
+    startDate: '2026-05-25', endDate: '2026-05-31',
+    categories: {
+      shay: [
+        { id: 'shay-prep', label: 'Final Shay prep: re-read offer letter, prep intro about background (CMB / Rideflow / portfolio in 90 sec)' }
+      ],
+      fe: [
+        { id: 'fe-w1', label: 'FE Week 1 (Wed May 27, 4–7pm ET): Foundational Seminar — analyst role, daily workflow', tag: 'milestone' },
+        { id: 'fe-notes', label: 'Take notes on FE Week 1 → save to Notes tab' }
+      ],
+      mental_math: [
+        { id: 'zm-daily', label: 'Daily Zetamac: 1× 0–100/8min, log score', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'zhou-2-3', label: 'Zhou Ch. 2–3 (combinatorics, conditional probability)' },
+        { id: 'crack-2', label: 'Crack: 2 brainteasers/day, write solutions in Notes', tag: 'daily' }
+      ],
+      code: [
+        { id: 'lc-easy-5b', label: 'LeetCode: 5 more easies (linked list, two-pointer in Java)' }
+      ],
+      project: [
+        { id: 'cmb-readme-1', label: 'CMB-SZ README draft 1: rewrite intro with quant framing (signal extraction from noisy data)' }
+      ],
+      network: [
+        { id: 'gs-thx', label: 'Email Maggie Higgins (GS) — thank for Possibilities Series, mention Shay start, ask if any upcoming sophomore events' },
+        { id: 'gs-gen', label: 'Email Gen Masuda (GS) — brief follow-up if appropriate from earlier coffee chat' }
+      ]
+    },
+    milestone: 'FE Week 1 done · CMB README draft 1 done · Day 1 mindset ready'
+  },
+
+  w1: {
+    title: 'Week 1 · Shay Day 1 → Orientation',
+    dates: 'Jun 1 – Jun 7',
+    startDate: '2026-06-01', endDate: '2026-06-07',
+    categories: {
+      shay: [
+        { id: 's1-observe', label: 'Observe everything: team structure, who talks to whom, daily rhythm, what makes Andrew\'s day busy' },
+        { id: 's1-vocab', label: 'Build vocab list: every term you hear that you don\'t know → look up that evening' },
+        { id: 's1-questions', label: 'End-of-week check with Andrew: any project you can own? What would be useful?' },
+        { id: 's1-listening', label: 'Listen 4× as much as you speak in your first week', tag: 'daily' }
+      ],
+      fe: [
+        { id: 'fe-w2', label: 'FE Week 2: Financial Modeling (self-paced ~2hr) · Wed office hours 6–7pm ET if available' }
+      ],
+      mental_math: [
+        { id: 'zm-w1', label: 'Zetamac 0–100/8min daily, target +5 over baseline', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'zhou-4-5', label: 'Zhou Ch. 4–5 (conditional EV, Bayes basics)' },
+        { id: 'crack-w1', label: 'Crack: 2 brainteasers/day with written solution', tag: 'daily' }
+      ],
+      code: [
+        { id: 'forage-jpmc', label: 'Start Forage JPMC Quant Research virtual experience (4–6 hrs, FREE credential)' },
+        { id: 'lc-w1', label: 'LeetCode: 5 mediums in Java (array + hashmap, including building HashMap from scratch for GS prep)' }
+      ],
+      project: [
+        { id: 'cmb-readme-2', label: 'CMB-SZ README draft 2: add methodology section, add 1 hero figure' }
+      ],
+      network: [
+        { id: 'li-shay-team', label: 'After 1 week: connect with anyone on the Shay team who seemed approachable' }
+      ]
+    },
+    milestone: 'Forage JPMC started · Zetamac +5 over baseline · Shay observation notes synced'
+  },
+
+  w2: {
+    title: 'Week 2 · Investment Process + FE Mixer',
+    dates: 'Jun 8 – Jun 14',
+    startDate: '2026-06-08', endDate: '2026-06-14',
+    categories: {
+      shay: [
+        { id: 's2-process', label: 'Understand Shay\'s investment process end-to-end: idea generation → research → sizing → exit. Sketch it on paper.' },
+        { id: 's2-meetings', label: 'Attend every meeting Andrew invites you to; take notes; review notes that evening' }
+      ],
+      fe: [
+        { id: 'fe-w3', label: 'FE Week 3 (Wed Jun 10, 5–7pm ET): AI in Investing — live Zoom · 2 hrs' },
+        { id: 'fe-mixer', label: 'FE Intern Mixer · Thu Jun 11, 6pm · Midtown NYC — bring 2-min Shay intro + 1-min project hook', tag: 'milestone' },
+        { id: 'fe-mixer-followup', label: 'Within 48 hrs: LinkedIn-connect with 5+ people from the mixer with personalized notes' }
+      ],
+      mental_math: [
+        { id: 'zm-w2', label: 'Zetamac daily, target 60+ on 0–100/8min', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'zhou-6-7', label: 'Zhou Ch. 6–7 (Bayes deeper, random walk intuition)' },
+        { id: 'crack-w2', label: 'Crack: 2 brainteasers/day', tag: 'daily' }
+      ],
+      code: [
+        { id: 'forage-finish', label: 'Finish Forage JPMC QR — add credential to LinkedIn' },
+        { id: 'lc-w2', label: 'LeetCode: 5 mediums (graph BFS/DFS — HRT-style)' }
+      ],
+      project: [
+        { id: 'cmb-figs', label: 'CMB-SZ: add S/N visualization, Monte Carlo uncertainty bands. Push to GitHub.' }
+      ],
+      network: [
+        { id: 'cornell-li', label: 'Search Cornell alumni at Jane Street, HRT, Citadel, Two Sigma on LinkedIn — list 10, prioritize by approachability' }
+      ]
+    },
+    milestone: 'FE Mixer attended + 5 LinkedIn follow-ups · Zetamac 60+ · CMB GitHub looks like a real project'
+  },
+
+  w3: {
+    title: 'Week 3 · First Real Deliverable',
+    dates: 'Jun 15 – Jun 21',
+    startDate: '2026-06-15', endDate: '2026-06-21',
+    categories: {
+      shay: [
+        { id: 's3-deliver', label: 'First real deliverable at Shay: ask Andrew for an explicit ask, do it well, ask for feedback', tag: 'milestone' },
+        { id: 's3-revise', label: 'Take the feedback, revise, resubmit. Don\'t take corrections personally — track patterns.' }
+      ],
+      fe: [
+        { id: 'fe-w4', label: 'FE Week 4: Analyze an Industry (self-paced)' }
+      ],
+      mental_math: [
+        { id: 'zm-w3', label: 'Zetamac daily, target 65+. Introduce ÷ if not already practicing it.', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'zhou-8-9', label: 'Zhou Ch. 8–9 (stochastic processes intro, martingales)' },
+        { id: 'crack-w3', label: 'Crack: 2 brainteasers/day', tag: 'daily' }
+      ],
+      code: [
+        { id: 'lc-w3', label: 'LeetCode: 5 mediums (binary tree + recursion in Java)' },
+        { id: 'tags', label: 'On LeetCode, use company filters: HRT, Citadel, Jane Street if accessible' }
+      ],
+      project: [
+        { id: 'cmb-done', label: 'CMB-SZ README finalized · README has: TL;DR, methodology, quant relevance, 3 figures, repro instructions', tag: 'milestone' }
+      ],
+      network: [
+        { id: 'alerts', label: 'Set Google Alerts: "Jane Street FTTP 2027", "HRT Sophomore Internship S27", "D.E. Shaw Discovery Fellowship 2026"' },
+        { id: 'cornell-club', label: 'Find Cornell quant club / Quant @ Cornell — get on listserv for fall' }
+      ]
+    },
+    milestone: 'First Shay deliverable submitted & revised · CMB-SZ project looks like a real project to a stranger'
+  },
+
+  w4: {
+    title: 'Week 4 · Initiative + Options',
+    dates: 'Jun 22 – Jun 28',
+    startDate: '2026-06-22', endDate: '2026-06-28',
+    categories: {
+      shay: [
+        { id: 's4-propose', label: 'Propose a small research question to Andrew (something useful, not vanity). Show initiative beyond assigned tasks.' }
+      ],
+      fe: [
+        { id: 'fe-w5', label: 'FE Week 5: Analyze a Business (self-paced) — unit economics, ROIC, moats' }
+      ],
+      mental_math: [
+        { id: 'zm-w4', label: 'Zetamac daily, target 70+', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'hull-1-3', label: 'Hull Ch. 1–3 (mechanics of derivatives, futures, hedging strategies)' },
+        { id: 'crack-w4', label: 'Crack: 2 brainteasers/day', tag: 'daily' }
+      ],
+      code: [
+        { id: 'lc-w4', label: 'LeetCode: 5 mediums (DP intro: 1D DP, climbing stairs / house robber family)' }
+      ],
+      project: [
+        { id: 'pick-flagship', label: 'Decide flagship project: systematic backtest notebook (default) OR a Shay-adjacent project Andrew greenlights', tag: 'milestone' },
+        { id: 'flagship-scope', label: 'Write a 1-page scope: hypothesis, data, methodology, what success looks like, expected failure modes' }
+      ],
+      network: [
+        { id: 'wqu', label: 'WorldQuant BRAIN: submit your first alpha (simple momentum or mean-reversion). Free, low-stakes, real signal.' }
+      ]
+    },
+    milestone: 'Flagship project scope written · Zetamac 70+ · WorldQuant alpha submitted'
+  },
+
+  w5: {
+    title: 'Week 5 · Mid-Internship Check-In',
+    dates: 'Jun 29 – Jul 5',
+    startDate: '2026-06-29', endDate: '2026-07-05',
+    categories: {
+      shay: [
+        { id: 's5-checkin', label: 'Mid-internship check-in: ask Andrew explicitly "what would I need to do to get a return offer?"', tag: 'milestone' },
+        { id: 's5-feedback', label: 'Document the feedback verbatim. Then write what changes you\'ll make for the back half.' }
+      ],
+      fe: [
+        { id: 'fe-w6', label: 'FE Week 6: Why Stocks Move Up & Down (self-paced)' }
+      ],
+      mental_math: [
+        { id: 'zm-w5', label: 'Zetamac daily, target 70+ stable', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'hull-4-7', label: 'Hull Ch. 4–7 (interest rates, swaps, intro to options pricing)' },
+        { id: 'zhou-10', label: 'Zhou Ch. 10 (intro to options + put-call parity intuition)' }
+      ],
+      code: [
+        { id: 'lc-w5', label: 'LeetCode: 5 mediums (binary search variants — find min in rotated, search 2D matrix)' }
+      ],
+      project: [
+        { id: 'flagship-data', label: 'Flagship: data acquisition + clean. Define backtest framework: walk-forward, no lookahead, txn costs.' }
+      ],
+      network: [
+        { id: 'coffee-1', label: 'Schedule 1 coffee chat — Cornell alum at a target firm. Use the FE Mixer or Possibilities contacts.' }
+      ]
+    },
+    milestone: 'Mid-internship feedback collected · Flagship data pipeline running'
+  },
+
+  w6: {
+    title: 'Week 6 · Earnings Season + Build',
+    dates: 'Jul 6 – Jul 12',
+    startDate: '2026-07-06', endDate: '2026-07-12',
+    categories: {
+      shay: [
+        { id: 's6-eyes', label: 'Earnings season at Shay: ride along on a few names. Pre-earnings expectations → reaction → why it moved' }
+      ],
+      fe: [
+        { id: 'fe-w7', label: 'FE Week 7: Earnings Season (self-paced) — use it as a live lab on real positions if Shay allows' }
+      ],
+      mental_math: [
+        { id: 'zm-w6', label: 'Zetamac daily; introduce 75-in-10 mode for Flow Traders prep', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'hull-8-10', label: 'Hull Ch. 8–10 (Black-Scholes intuition, Greeks: delta, gamma, vega, theta)' },
+        { id: 'crack-w6', label: 'Crack: 2 brainteasers/day', tag: 'daily' }
+      ],
+      code: [
+        { id: 'lc-w6', label: 'LeetCode: 5 mediums (sliding window + monotonic stack)' }
+      ],
+      project: [
+        { id: 'flagship-strat', label: 'Flagship: implement 1 systematic strategy (momentum or mean-reversion). Backtest with txn costs.' }
+      ],
+      network: [
+        { id: 'coffee-2', label: 'Coffee chat #2 + send 5 new LinkedIn messages to Cornell alums at target firms' }
+      ]
+    },
+    milestone: 'First Hull Greeks notes done · 1 strategy backtested with realistic costs'
+  },
+
+  w7: {
+    title: 'Week 7 · Thesis Development + Project Push',
+    dates: 'Jul 13 – Jul 19',
+    startDate: '2026-07-13', endDate: '2026-07-19',
+    categories: {
+      shay: [
+        { id: 's7-thesis', label: 'Try writing a 1-page investment thesis on a name Shay follows. Share with Andrew if he wants to see it.' }
+      ],
+      fe: [
+        { id: 'fe-w8', label: 'FE Week 8: Thesis Development (self-paced) — base/bull/bear framing' }
+      ],
+      mental_math: [
+        { id: 'zm-w7', label: 'Zetamac daily; weekend: try 80-in-8 (Optiver mode)', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'hull-11-13', label: 'Hull Ch. 11–13 (binomial trees, BS-Merton model, volatility)' }
+      ],
+      code: [
+        { id: 'lc-w7', label: 'LeetCode: 5 mediums (heap / priority queue: kth-largest variants, merge K sorted)' }
+      ],
+      project: [
+        { id: 'flagship-charts', label: 'Flagship: build the writeup. Equity curve, drawdown chart, Sharpe, hit rate, turnover, regime analysis.' }
+      ],
+      network: [
+        { id: 'coffee-3', label: 'Coffee chat #3 + draft your "what I did this summer" 90-second pitch for fall recruiting' }
+      ]
+    },
+    milestone: 'Hull options done through BS · Flagship has full performance report'
+  },
+
+  w8: {
+    title: 'Week 8 · Pitch + Polish',
+    dates: 'Jul 20 – Jul 26',
+    startDate: '2026-07-20', endDate: '2026-07-26',
+    categories: {
+      shay: [
+        { id: 's8-deliver', label: 'Push one more substantive deliverable at Shay. Quality over quantity in the final stretch.' }
+      ],
+      fe: [
+        { id: 'fe-w9', label: 'FE Week 9: Pitch Like a Pro (self-paced) — structuring stock pitches, handling pushback' }
+      ],
+      mental_math: [
+        { id: 'zm-w8', label: 'Zetamac daily — measure progress vs baseline (should be +15-20)', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'zhou-review-1', label: 'Zhou: re-do hardest 20 problems from Ch. 4–7. Time yourself.' }
+      ],
+      code: [
+        { id: 'lc-w8', label: 'LeetCode: 5 mediums (graph DP: word ladder, course schedule, network delay)' }
+      ],
+      project: [
+        { id: 'flagship-readme', label: 'Flagship README: hypothesis, methodology, results, failure modes, what would break this strategy' }
+      ],
+      network: [
+        { id: 'coffee-4', label: 'Coffee chat #4 + start drafting "warm" outreach templates for August applications' }
+      ]
+    },
+    milestone: 'Zetamac at target · Flagship project repo public + polished'
+  },
+
+  w9: {
+    title: 'Week 9 · FE Wrap-Up + Final Push',
+    dates: 'Jul 27 – Aug 2',
+    startDate: '2026-07-27', endDate: '2026-08-02',
+    categories: {
+      shay: [
+        { id: 's9-prep', label: 'Start prepping final-week conversations: what to ask Andrew about a return path / future contact' }
+      ],
+      fe: [
+        { id: 'fe-w10', label: 'FE Week 10 (Wed Jul 30, 5:30–7pm ET): Wrapping Up — live Zoom · final pitch session', tag: 'milestone' },
+        { id: 'fe-cert', label: 'Confirm FE certificate of completion → add to LinkedIn' }
+      ],
+      mental_math: [
+        { id: 'zm-w9', label: 'Zetamac daily', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'zhou-review-2', label: 'Zhou: re-do hardest 20 problems from Ch. 8–10' },
+        { id: 'mock-1', label: 'Self-mock interview: 5 probability + 5 brainteasers in a row, timed.' }
+      ],
+      code: [
+        { id: 'lc-w9', label: 'LeetCode: 5 hards. First taste of HRT-style difficulty.' }
+      ],
+      project: [
+        { id: 'flagship-public', label: 'Flagship: make public + write a LinkedIn post about it (signal not noise)', tag: 'milestone' }
+      ],
+      network: [
+        { id: 'coffee-5', label: 'Coffee chat #5 + write thank-you notes to all FE instructors' }
+      ]
+    },
+    milestone: 'FE complete + certificate · Flagship public · Final week at Shay framed'
+  },
+
+  w10: {
+    title: 'Week 10 · Final Push + Resume Refresh',
+    dates: 'Aug 3 – Aug 9',
+    startDate: '2026-08-03', endDate: '2026-08-09',
+    categories: {
+      shay: [
+        { id: 's10-summarize', label: 'Write a 1-page summary of what you built/learned at Shay. Internal use + your records.' }
+      ],
+      mental_math: [
+        { id: 'zm-w10', label: 'Zetamac daily', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'mock-2', label: 'Self-mock #2: full 30-min probability + brainteaser block, timed. Note gaps.' }
+      ],
+      code: [
+        { id: 'lc-w10', label: 'LeetCode: 5 mediums + 2 hards (review weak areas from Metrics tab)' }
+      ],
+      project: [
+        { id: 'rideflow-polish', label: 'Optional: 1 more day on Rideflow / Yelo cleanup if time permits' }
+      ],
+      network: [
+        { id: 'resume', label: 'Resume refresh: replace "intended" with "B.A. Mathematics (OR) + Statistical Science"; add Shay bullets; reframe CMB in quant language', tag: 'milestone' }
+      ]
+    },
+    milestone: 'Resume v2 done · Shay summary written'
+  },
+
+  w11: {
+    title: 'Week 11 · Last Week at Shay',
+    dates: 'Aug 10 – Aug 16',
+    startDate: '2026-08-10', endDate: '2026-08-16',
+    categories: {
+      shay: [
+        { id: 's11-thanks', label: 'Final-day Shay: thank Andrew + Marc directly. Ask if you can stay in touch / what to do over the year.' },
+        { id: 's11-recs', label: 'Ask for LinkedIn recommendations from anyone willing — within 1 week while it\'s fresh.' },
+        { id: 's11-finish', label: 'Internship ends Aug 14. Finish strong. Leave the desk cleaner than you found it.', tag: 'milestone' }
+      ],
+      mental_math: [
+        { id: 'zm-w11', label: 'Zetamac daily — keep streak alive', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'mock-3', label: 'Self-mock #3: time-pressured probability set (think Optiver phone screen pace)' }
+      ],
+      code: [
+        { id: 'lc-w11', label: 'LeetCode: 5 mediums (review weak topics)' }
+      ],
+      project: [
+        { id: 'final-touches', label: 'Final polish on both projects (CMB + flagship). Final READMEs.' }
+      ],
+      network: [
+        { id: 'cornell-prep', label: 'Prep for Cornell return: confirm quant club fall meetings, list firms doing OCR' }
+      ]
+    },
+    milestone: 'Shay finished with strong relationships · Both projects publicly polished'
+  },
+
+  w12: {
+    title: 'Week 12 · Apps Window Opens',
+    dates: 'Aug 17 – Aug 23',
+    startDate: '2026-08-17', endDate: '2026-08-23',
+    categories: {
+      shay: [
+        { id: 'shay-thx', label: 'Thank-you note to Andrew + Marc · ask about staying in touch during school year' }
+      ],
+      mental_math: [
+        { id: 'zm-w12', label: 'Zetamac daily — taper to 3×/week if needed but keep sharp', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'mock-4', label: '2 full mock interviews this week (probability + brainteasers, timed, no notes)' }
+      ],
+      code: [
+        { id: 'lc-w12', label: 'LeetCode: 5 mediums focused on company tags for Tier 1 firms (HRT, Citadel)' }
+      ],
+      project: [
+        { id: 'portfolio-page', label: 'Build a personal-site / GitHub Pages portfolio: bio + 3 projects + resume PDF + contact' }
+      ],
+      network: [
+        { id: 'apps-1', label: 'Apply: HRT Sophomore Summer Internship (typically opens late summer 2026)', tag: 'milestone' },
+        { id: 'apps-2', label: 'Apply: Jane Street FTTP (opens ~July, rolling — confirm portal status weekly)' },
+        { id: 'apps-3', label: 'Apply: Citadel Discover events / Quant Invitational / Trading Invitational (open class-year)' }
+      ]
+    },
+    milestone: 'First 3 sophomore applications submitted'
+  },
+
+  w13: {
+    title: 'Week 13 · Apps Push + Cornell Return',
+    dates: 'Aug 24 – Aug 31',
+    startDate: '2026-08-24', endDate: '2026-08-31',
+    categories: {
+      mental_math: [
+        { id: 'zm-w13', label: 'Zetamac 3×/week minimum to stay sharp through the school year', tag: 'daily' }
+      ],
+      prob: [
+        { id: 'rev-cycle', label: 'Cycle: Zhou hardest 10 + Crack hardest 10. Spaced repetition through fall.' }
+      ],
+      code: [
+        { id: 'lc-w13', label: 'LeetCode: 5 mediums; start CS 2110 reading if Cornell starts Aug 26' }
+      ],
+      project: [
+        { id: 'fall-plan', label: 'Write Fall 2026 plan: courses + apps + clubs + recruiting cadence (don\'t over-program)' }
+      ],
+      network: [
+        { id: 'apps-4', label: 'Apply: SIG Discovery Day · Akuna Sneak Peek · IMC Launchpad (sophomore-eligible programs)' },
+        { id: 'apps-5', label: 'Apply: D.E. Shaw Discovery / Latitude / Nexus Fellowships (Sept-Oct portal; pre-stage now)' },
+        { id: 'apps-6', label: 'Apply: bank early-insight programs (MS Sophomore Early Insights, GS Virtual Insight Series, JPMC Fellowship)' },
+        { id: 'apps-followup', label: 'Follow up on all August apps where you have a contact — direct, brief, not pushy' }
+      ]
+    },
+    milestone: 'Sophomore apps push complete · Fall plan written'
+  }
+
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CATEGORY METADATA
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CATEGORIES = {
+  shay:        { label: 'Shay Capital', cls: 'cat-shay' },
+  fe:          { label: 'Fundamental Edge', cls: 'cat-fe' },
+  mental_math: { label: 'Mental Math', cls: 'cat-mental' },
+  prob:        { label: 'Probability / Reading', cls: 'cat-prob' },
+  code:        { label: 'Coding', cls: 'cat-code' },
+  project:     { label: 'Project Work', cls: 'cat-project' },
+  network:     { label: 'Networking', cls: 'cat-network' }
+};
+
+const CAT_ORDER = ['shay', 'fe', 'mental_math', 'prob', 'code', 'project', 'network'];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// RESOURCE DATA
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const BOOKS = [
+  { id: 'zhou',      title: 'A Practical Guide to Quantitative Finance Interviews', author: 'Xinfeng Zhou', priority: 'must',
+    chapters: 12, note: 'The green book. THE core. Probability puzzles, brainteasers, stoch processes. Used by every quant firm in interviews.',
+    target: 'Ch. 1-10 by end of summer; re-do hardest problems twice.' },
+  { id: 'crack',     title: 'Heard on the Street', author: 'Timothy Crack', priority: 'must',
+    chapters: 15, note: 'Brainteasers + finance + mental math. 2/day discipline → ~120 problems by end of summer.',
+    target: 'Run 2/day during weekdays.' },
+  { id: 'hull',      title: 'Options, Futures, and Other Derivatives (Ch. 1-13)', author: 'John C. Hull', priority: 'high',
+    chapters: 13, note: 'Options pricing, Greeks, BS-Merton, hedging. Essential for Goldman Strats, Cboe, Optiver, IMC, MS QF, JPMC QR.',
+    target: 'Ch. 1-13 by end of July.' },
+  { id: 'islr',      title: 'An Introduction to Statistical Learning (ISLR)', author: 'James, Witten, Hastie, Tibshirani', priority: 'high',
+    chapters: 12, note: 'Two Sigma / D.E. Shaw / Citadel QR reference. Free PDF online.',
+    target: 'Skim Ch. 1-7 by end of summer; deep on regression + CV.' },
+  { id: 'shreve',    title: 'Stochastic Calculus for Finance I', author: 'Steven Shreve', priority: 'med',
+    chapters: 10, note: 'Binomial trees. Stretch goal — gets you ahead of MATH 4740 (Spring 2027).',
+    target: 'Optional Ch. 1-3 if time permits in late August.' }
+];
+
+const SITES = [
+  { name: 'Zetamac Arithmetic', url: 'https://arithmetic.zetamac.com/', meta: 'Mental math drill · daily · target 70+ on 0-100/8min', priority: 'must' },
+  { name: 'Optiver 80-in-8 simulator', url: 'https://optiver.com/working-at-optiver/career-hub/numerical-test/', meta: 'Exact Optiver gate. Pass mark ~60.', priority: 'must' },
+  { name: 'LeetCode', url: 'https://leetcode.com/', meta: 'DSA practice · Java preferred · ~60 mediums by end of August', priority: 'must' },
+  { name: 'Jane Street Puzzles', url: 'https://www.janestreet.com/puzzles/', meta: 'Monthly puzzles · solving + submitting = real signal in JS process', priority: 'high' },
+  { name: 'WorldQuant BRAIN', url: 'https://platform.worldquantbrain.com/', meta: 'Alpha submission platform · free signal-development practice', priority: 'high' },
+  { name: 'QuantNet Forum', url: 'https://www.quantnet.com/', meta: 'Application timing intel + interview reports from current candidates', priority: 'med' },
+  { name: 'r/quant + r/csMajors', url: 'https://reddit.com/r/quant', meta: 'Real-time application opening notifications + interview experiences', priority: 'med' },
+  { name: 'Wall Street Oasis quant threads', url: 'https://www.wallstreetoasis.com/forum/hedge-fund', meta: 'Older but useful for historical app dates + firm reputation', priority: 'low' },
+  { name: 'Codeforces', url: 'https://codeforces.com/', meta: '2-3 contests/month if you want HRT/D.E. Shaw competitive edge', priority: 'med' },
+  { name: 'Estimathon', url: 'https://www.estimathon.com/', meta: 'Fermi estimation practice · Jane Street + Two Sigma style', priority: 'med' }
+];
+
+const FIRMS = [
+  { name: 'Hudson River Trading · Sophomore Internship', url: 'https://www.hudsonrivertrading.com/careers/', note: 'Tier 1. Apply within first week of portal opening. $5,800/wk + housing.' },
+  { name: 'Jane Street · First-Year Trading & Technology Program (FTTP)', url: 'https://www.janestreet.com/join-jane-street/', note: 'Tier 1. Opens ~July, rolling. Trading game stage is the signature.' },
+  { name: 'Jane Street · SEE / AMP TA', url: 'https://www.janestreet.com/join-jane-street/', note: 'Tier 1. Alternate JS routes if FTTP doesn\'t pan out.' },
+  { name: 'D.E. Shaw · Discovery / Latitude / Nexus Fellowships', url: 'https://www.deshaw.com/careers/students', note: 'Tier 1. Opens Sept-Oct 2026. $1,500 stipend + travel.' },
+  { name: 'Citadel & Citadel Securities · Discover / Datathon / Invitationals', url: 'https://www.citadelsecurities.com/careers/students/', note: 'Tier 1-2. Multiple sophomore on-ramps. Quant Invitational = paired research challenge.' },
+  { name: 'IMC Trading · Launchpad', url: 'https://imc.com/us/careers/students-graduates/', note: 'Tier 2. 2-day Chicago discovery event. Travel covered.' },
+  { name: 'Optiver · FutureFocus', url: 'https://optiver.com/working-at-optiver/career-hub/', note: 'Tier 2. 5-day Chicago/Austin event. 80-in-8 gate.' },
+  { name: 'SIG · Discovery Day', url: 'https://careers.sig.com/students-and-graduates', note: 'Tier 2. Poker night during superday is legendary. Mental math heavy.' },
+  { name: 'Akuna Capital · Sneak Peek', url: 'https://akunacapital.com/careers/students-and-grads', note: 'Tier 2-3. Chicago options-market-maker exposure.' },
+  { name: 'Five Rings · open class-year', url: 'https://fiveringscapital.com/', note: 'Tier 2-3. Open eligibility uncommon in HFT space.' },
+  { name: 'Bridgewater · Rising Fellows + AI Hackathon', url: 'https://www.bridgewater.com/careers', note: 'Tier 2-3. Group debate format. Unusual culture-fit testing.' },
+  { name: 'Goldman Sachs · Virtual Insight Series', url: 'https://www.goldmansachs.com/careers/students/programs/americas/virtual-insight-series.html', note: 'Tier 3. Funnel into junior-year Strats role. Reach out to Maggie Higgins.' },
+  { name: 'Morgan Stanley · Sophomore Early Insights', url: 'https://www.morganstanley.com/people-opportunities/students-graduates', note: 'Tier 3. Funnel to junior-year Quant Finance Summer Analyst.' }
+];
+
+const CREDS = [
+  { name: 'Forage · JPMorgan Quant Research Virtual Experience', url: 'https://www.theforage.com/', note: 'FREE · 4-6 hrs · real JPMC framing of QR work · do this in Week 1' },
+  { name: 'Forage · Citi Markets Quantitative Analysis', url: 'https://www.theforage.com/', note: 'FREE · backup credential' },
+  { name: 'WorldQuant BRAIN · Alpha submissions', url: 'https://platform.worldquantbrain.com/', note: 'FREE · submit 5+ alphas this summer; top alphas have invitation paths' },
+  { name: 'Citadel Datathon', url: 'https://www.citadel.com/careers/the-data-open/', note: 'FREE · Apply when annual round opens (often spring/summer); Cornell often hosts a regional' },
+  { name: 'Bridgewater × Metaculus Forecasting Contest', url: 'https://www.metaculus.com/', note: 'FREE · forecasting accuracy on Metaculus questions; ongoing' }
+];
+
+const STARTER_NETWORK = [
+  { id: 'sn1', label: 'Thank-you to Maggie Higgins (GS) — referencing Possibilities Series + Shay start' },
+  { id: 'sn2', label: 'LinkedIn-connect with Gen Masuda + anyone else from GS coffee chats' },
+  { id: 'sn3', label: 'LinkedIn-connect with Brett Caughran, Andrew Carr, Marc Greenberg (FE instructors) — Day 1 of FE' },
+  { id: 'sn4', label: 'Cornell alumni search: filter LinkedIn → Cornell + (Jane Street | HRT | Citadel | Two Sigma | DRW)' },
+  { id: 'sn5', label: 'List 10 Cornell-alum quants on a spreadsheet; rank by approachability + relevance' },
+  { id: 'sn6', label: 'Send first 3 cold messages by end of Week 3 (short, specific, no ask)' },
+  { id: 'sn7', label: 'After FE Mixer Jun 11: follow up with 5+ contacts within 48 hours' },
+  { id: 'sn8', label: 'Schedule 1 coffee chat / month minimum during internship; 2/month after Aug' },
+  { id: 'sn9', label: 'Track every conversation in the Contacts table; set follow-up dates for every active contact' },
+  { id: 'sn10', label: 'End of summer: thank-you to anyone who helped you. Reciprocity compounds.' }
+];
+
+const DAILY_DRILLS = [
+  { id: 'd-zm', label: '1× Zetamac 0–100 / 8 min · log score' },
+  { id: 'd-crack', label: '2 Heard on the Street brainteasers · write solutions' },
+  { id: 'd-lc', label: '1 LeetCode medium · log in Metrics tab' },
+  { id: 'd-zhou', label: '5–10 Zhou problems · 30 min focused' },
+  { id: 'd-news', label: '15 min FT/WSJ/Bloomberg or earnings note · sets context for the day' },
+  { id: 'd-notes', label: 'End-of-day: 5 min note in Shay vocab + observations' }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const state = {
+  tasks: {},          // { [weekId]: { [taskId]: { done: bool, date: 'YYYY-MM-DD' } } }
+  zetamac: [],        // [{date, score, mode}]
+  leetcode: [],       // [{date, difficulty, name, topic}]
+  books: {},          // { [bookId]: { status: 'not_started'|'reading'|'done', chapter: n, notes: '' } }
+  resources: {},      // { [resId]: { used: bool } }  (sites + creds)
+  contacts: [],       // [{id, name, firm, ...}]
+  notes: {},          // { [weekId]: string }
+  general_notes: '',
+  narrative: '',
+  starter_network: {} // { [snId]: bool }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function init() {
+  document.getElementById('today-date').textContent = formatDate(new Date(), true);
+
+  // Load state
+  state.tasks = await Store.get('tasks', {});
+  state.zetamac = await Store.get('zetamac', []);
+  state.leetcode = await Store.get('leetcode', []);
+  state.books = await Store.get('books', {});
+  state.resources = await Store.get('resources', {});
+  state.contacts = await Store.get('contacts', []);
+  state.notes = await Store.get('notes', {});
+  state.general_notes = await Store.get('general_notes', '');
+  state.narrative = await Store.get('narrative', '');
+  state.starter_network = await Store.get('starter_network', {});
+
+  // Init forms
+  const today = isoDate(new Date());
+  document.getElementById('zm-date').value = today;
+  document.getElementById('lc-date').value = today;
+  document.getElementById('ct-last').value = today;
+
+  // Wire tabs
+  document.querySelectorAll('#tab-nav button').forEach(b => {
+    b.onclick = () => switchTab(b.dataset.tab);
+  });
+
+  // Wire general notes auto-save
+  const gn = document.getElementById('general-notes');
+  gn.value = state.general_notes;
+  gn.oninput = debounce(async () => {
+    state.general_notes = gn.value;
+    await Store.set('general_notes', gn.value);
+  }, 400);
+
+  const nv = document.getElementById('narrative-edit');
+  nv.value = state.narrative;
+  nv.oninput = debounce(async () => {
+    state.narrative = nv.value;
+    await Store.set('narrative', nv.value);
+  }, 400);
+
+  // Wire export/import/reset
+  document.getElementById('export-data').onclick = exportData;
+  document.getElementById('import-data').onclick = () => document.getElementById('import-file').click();
+  document.getElementById('import-file').onchange = importData;
+  document.getElementById('reset-data').onclick = resetData;
+
+  document.getElementById('ct-filter').oninput = renderContacts;
+  document.getElementById('ct-sort').onchange = renderContacts;
+
+  renderAll();
+}
+
+function renderAll() {
+  renderDashboard();
+  renderPlan();
+  renderMetrics();
+  renderResources();
+  renderContacts();
+  renderStarterNetwork();
+  renderWeeklyNotes();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function renderDashboard() {
+  // Countdowns
+  const cdContainer = document.getElementById('countdowns');
+  cdContainer.innerHTML = '';
+  const now = new Date();
+  Object.entries(KEY_DATES).forEach(([k, v]) => {
+    const target = new Date(v.d + 'T00:00:00');
+    const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+    const past = diff < 0;
+    cdContainer.innerHTML += `
+      <div class="countdown ${past ? 'past' : ''}">
+        <div class="label">${v.label}</div>
+        <div class="value">${past ? `${-diff} ago` : diff === 0 ? 'today' : diff}<span class="unit">${past ? 'days' : (diff === 0 ? '' : (diff === 1 ? 'day' : 'days'))}</span></div>
+        <div class="date">${v.d}</div>
+      </div>
+    `;
+  });
+
+  // Current week
+  const cw = currentWeek();
+  document.getElementById('current-week-tag').textContent = cw ? cw.id.toUpperCase() : '—';
+  if (cw) {
+    document.getElementById('current-week-summary').innerHTML = `
+      <strong>${cw.title}</strong><br>
+      <span class="mono">${cw.dates}</span><br>
+      <span class="muted">${cw.milestone}</span>
+    `;
+    const prog = weekProgress(cw.id);
+    document.getElementById('current-week-bar').style.width = prog.pct + '%';
+    document.getElementById('current-week-pct').textContent = prog.pct + '%';
+  } else {
+    document.getElementById('current-week-summary').innerHTML = '<span class="muted">Outside the plan window.</span>';
+  }
+
+  // Quick stats
+  const qs = document.getElementById('quick-stats');
+  const totalTasks = Object.values(WEEKS).reduce((acc, w) => acc + countWeekTasks(w), 0);
+  const doneTasks = Object.values(state.tasks).reduce((acc, w) => acc + Object.values(w).filter(t => t.done).length, 0);
+  const zmBest = state.zetamac.length ? Math.max(...state.zetamac.map(z => z.score)) : 0;
+  const zmLatest = state.zetamac.length ? state.zetamac[state.zetamac.length - 1].score : 0;
+  const lcTotal = state.leetcode.length;
+  const lcMedium = state.leetcode.filter(l => l.difficulty === 'medium').length;
+  const lcHard = state.leetcode.filter(l => l.difficulty === 'hard').length;
+  qs.innerHTML = `
+    <div class="stat"><div class="label">Tasks Done</div><div class="value">${doneTasks}/${totalTasks}</div></div>
+    <div class="stat"><div class="label">Zetamac Best</div><div class="value">${zmBest || '—'}</div><div class="delta">${zmLatest ? 'latest: ' + zmLatest : 'no logs yet'}</div></div>
+    <div class="stat"><div class="label">LC Total</div><div class="value">${lcTotal}</div><div class="delta">${lcMedium}m · ${lcHard}h</div></div>
+    <div class="stat"><div class="label">Contacts</div><div class="value">${state.contacts.length}</div></div>
+  `;
+
+  // Daily drills
+  const ddList = document.getElementById('daily-drills');
+  ddList.innerHTML = '';
+  DAILY_DRILLS.forEach(d => {
+    const todayKey = 'drill_' + isoDate(new Date()) + '_' + d.id;
+    const checked = state[todayKey] === true;
+    ddList.innerHTML += `
+      <li class="task ${checked ? 'done' : ''}">
+        <input type="checkbox" id="${todayKey}" ${checked ? 'checked' : ''} onchange="toggleDaily('${todayKey}')">
+        <label for="${todayKey}">${d.label}</label>
+      </li>
+    `;
+  });
+
+  // This week tasks
+  renderThisWeekTasks();
+
+  // LC quick stats
+  const lcq = document.getElementById('lc-quick-stats');
+  const lcEasy = state.leetcode.filter(l => l.difficulty === 'easy').length;
+  lcq.innerHTML = `
+    <div class="stat"><div class="label">Easy</div><div class="value">${lcEasy}</div></div>
+    <div class="stat"><div class="label">Medium</div><div class="value">${lcMedium}</div></div>
+    <div class="stat"><div class="label">Hard</div><div class="value">${lcHard}</div></div>
+  `;
+}
+
+async function toggleDaily(key) {
+  const checked = document.getElementById(key).checked;
+  state[key] = checked;
+  await Store.set(key, checked);
+  renderDashboard();
+}
+
+function renderThisWeekTasks() {
+  const cw = currentWeek();
+  const container = document.getElementById('this-week-tasks');
+  const countEl = document.getElementById('this-week-task-count');
+  if (!cw) {
+    container.innerHTML = '<div class="empty">No week is active right now. Check the Weekly Plan tab.</div>';
+    countEl.textContent = '';
+    return;
+  }
+  const tasksHtml = renderWeekBody(cw, true);
+  container.innerHTML = tasksHtml;
+  const prog = weekProgress(cw.id);
+  countEl.textContent = `${prog.done}/${prog.total} done · ${prog.pct}%`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WEEKLY PLAN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function renderPlan() {
+  const container = document.getElementById('weeks-container');
+  container.innerHTML = '';
+  const cw = currentWeek();
+  PHASES.forEach(phase => {
+    container.innerHTML += `
+      <div class="phase-header">
+        <h2>${phase.name}</h2>
+        <div class="phase-meta">${phase.meta}</div>
+      </div>
+    `;
+    phase.weeks.forEach(wid => {
+      const week = { ...WEEKS[wid], id: wid };
+      const isCurrent = cw && cw.id === wid;
+      const isPast = isWeekPast(week);
+      const prog = weekProgress(wid);
+      container.innerHTML += `
+        <div class="card week-card ${isCurrent ? 'current' : ''} ${isPast ? 'past' : ''} ${isCurrent ? '' : 'collapsed'}" id="week-${wid}">
+          <div class="week-header" onclick="toggleWeek('${wid}')">
+            <h3>
+              ${isCurrent ? '<span class="badge">NOW</span>' : ''}
+              ${week.title}
+              <span class="week-dates">· ${week.dates}</span>
+            </h3>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="week-progress">${prog.done}/${prog.total} · ${prog.pct}%</span>
+              <span class="toggle-icon">▼</span>
+            </div>
+          </div>
+          <div class="week-body">${renderWeekBody(week)}</div>
+        </div>
+      `;
+    });
+  });
+}
+
+function renderWeekBody(week, compact = false) {
+  let html = '';
+  CAT_ORDER.forEach(catId => {
+    if (!week.categories[catId]) return;
+    const tasks = week.categories[catId];
+    const cat = CATEGORIES[catId];
+    html += `<div class="cat-block ${cat.cls}"><h4><span class="cat-dot"></span>${cat.label}</h4><ul class="task-list">`;
+    tasks.forEach(task => {
+      const done = isTaskDone(week.id, task.id);
+      const tag = task.tag ? `<span class="tag ${task.tag}">${task.tag}</span>` : '';
+      html += `
+        <li class="task ${done ? 'done' : ''}">
+          <input type="checkbox" id="t-${week.id}-${task.id}" ${done ? 'checked' : ''} onchange="toggleTask('${week.id}', '${task.id}')">
+          <label for="t-${week.id}-${task.id}">${tag}${task.label}</label>
+        </li>
+      `;
+    });
+    html += `</ul></div>`;
+  });
+  if (week.milestone && !compact) {
+    html += `<div class="week-milestone"><strong>Milestone:</strong> ${week.milestone}</div>`;
+  }
+  return html;
+}
+
+function toggleWeek(wid) {
+  document.getElementById('week-' + wid).classList.toggle('collapsed');
+}
+
+async function toggleTask(wid, tid) {
+  if (!state.tasks[wid]) state.tasks[wid] = {};
+  const cur = state.tasks[wid][tid] || { done: false };
+  cur.done = !cur.done;
+  cur.date = cur.done ? isoDate(new Date()) : null;
+  state.tasks[wid][tid] = cur;
+  await Store.set('tasks', state.tasks);
+  // Re-render only what changed: the relevant week, dashboard, this-week-tasks
+  renderPlan();
+  renderDashboard();
+}
+
+function isTaskDone(wid, tid) {
+  return state.tasks[wid]?.[tid]?.done === true;
+}
+
+function countWeekTasks(week) {
+  return Object.values(week.categories).reduce((acc, arr) => acc + arr.length, 0);
+}
+
+function weekProgress(wid) {
+  const week = WEEKS[wid];
+  const total = countWeekTasks(week);
+  const done = Object.values(state.tasks[wid] || {}).filter(t => t.done).length;
+  return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+}
+
+function isWeekPast(week) {
+  const end = new Date(week.endDate + 'T23:59:59');
+  return new Date() > end;
+}
+
+function isWeekCurrent(week) {
+  const now = new Date();
+  const start = new Date(week.startDate + 'T00:00:00');
+  const end = new Date(week.endDate + 'T23:59:59');
+  return now >= start && now <= end;
+}
+
+function currentWeek() {
+  for (const wid of Object.keys(WEEKS)) {
+    const w = { ...WEEKS[wid], id: wid };
+    if (isWeekCurrent(w)) return w;
+  }
+  // If no current week (e.g., before May 18 or after Aug 31), return the closest upcoming one
+  const now = new Date();
+  for (const wid of Object.keys(WEEKS)) {
+    const w = WEEKS[wid];
+    if (new Date(w.startDate) > now) return { ...w, id: wid };
+  }
+  // Else return last
+  const last = Object.keys(WEEKS).pop();
+  return { ...WEEKS[last], id: last };
+}
+
+function expandAllWeeks() {
+  document.querySelectorAll('.week-card').forEach(w => w.classList.remove('collapsed'));
+}
+function collapseAllWeeks() {
+  document.querySelectorAll('.week-card').forEach(w => {
+    if (!w.classList.contains('current')) w.classList.add('collapsed');
+  });
+}
+
+function scrollToCurrentWeek() {
+  const cw = currentWeek();
+  if (!cw) return;
+  const el = document.getElementById('week-' + cw.id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// METRICS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function renderMetrics() {
+  renderZetamacTable();
+  renderZetamacChart();
+  renderLCTable();
+  renderLCStats();
+  renderBooksProgress();
+}
+
+async function addZetamac() {
+  const date = document.getElementById('zm-date').value;
+  const score = parseInt(document.getElementById('zm-score').value);
+  const mode = document.getElementById('zm-mode').value;
+  if (!date || !score) { toast('Need date + score'); return; }
+  state.zetamac.push({ date, score, mode });
+  state.zetamac.sort((a, b) => a.date.localeCompare(b.date));
+  await Store.set('zetamac', state.zetamac);
+  document.getElementById('zm-score').value = '';
+  renderMetrics();
+  renderDashboard();
+  toast('Logged Zetamac: ' + score);
+}
+
+async function addZetamacQuick() {
+  const score = parseInt(document.getElementById('zm-score-quick').value);
+  const mode = document.getElementById('zm-mode-quick').value;
+  if (!score) { toast('Need score'); return; }
+  state.zetamac.push({ date: isoDate(new Date()), score, mode });
+  state.zetamac.sort((a, b) => a.date.localeCompare(b.date));
+  await Store.set('zetamac', state.zetamac);
+  document.getElementById('zm-score-quick').value = '';
+  renderMetrics();
+  renderDashboard();
+  toast('Logged: ' + score);
+}
+
+async function deleteZetamac(idx) {
+  state.zetamac.splice(idx, 1);
+  await Store.set('zetamac', state.zetamac);
+  renderMetrics(); renderDashboard();
+}
+
+function renderZetamacTable() {
+  const tbody = document.getElementById('zm-tbody');
+  if (!state.zetamac.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">No scores yet. Add your baseline above.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = state.zetamac.slice().reverse().map((z, i) => {
+    const realIdx = state.zetamac.length - 1 - i;
+    const prev = state.zetamac[realIdx - 1];
+    const delta = prev ? z.score - prev.score : null;
+    const deltaClass = delta == null ? '' : (delta > 0 ? 'up' : delta < 0 ? 'down' : '');
+    const deltaText = delta == null ? '—' : (delta > 0 ? '+' + delta : delta);
+    return `<tr>
+      <td class="mono">${z.date}</td>
+      <td class="mono"><strong>${z.score}</strong></td>
+      <td class="small">${z.mode}</td>
+      <td class="mono small ${deltaClass === 'up' ? 'pill green' : deltaClass === 'down' ? 'pill' : ''}" style="color:${deltaClass === 'up' ? 'var(--green)' : deltaClass === 'down' ? 'var(--red)' : 'var(--text-muted)'};">${deltaText}</td>
+      <td><button class="btn small danger" onclick="deleteZetamac(${realIdx})">×</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderZetamacChart() {
+  const wrap = document.getElementById('zm-chart-wrap');
+  const data = state.zetamac;
+  if (!data.length) {
+    wrap.innerHTML = '<div class="empty">Chart appears after first score.</div>';
+    return;
+  }
+  const W = 800, H = 220, padL = 40, padR = 16, padT = 16, padB = 30;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const scores = data.map(d => d.score);
+  const minScore = Math.min(...scores, 30);
+  const maxScore = Math.max(...scores, 90);
+  const yRange = Math.max(20, maxScore - minScore);
+  const yMin = Math.max(0, minScore - 5);
+  const yMax = maxScore + 5;
+  const xScale = i => padL + (data.length === 1 ? innerW / 2 : (i / (data.length - 1)) * innerW);
+  const yScale = v => padT + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+
+  let yTicks = '';
+  for (let v = Math.ceil(yMin / 10) * 10; v <= yMax; v += 10) {
+    const y = yScale(v);
+    yTicks += `<line class="chart-grid" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}"></line>`;
+    yTicks += `<text class="chart-label" x="${padL - 6}" y="${y + 3}" text-anchor="end">${v}</text>`;
+  }
+
+  // Optiver pass threshold lines at 60
+  yTicks += `<line stroke="${'#b45309'}" stroke-width="1.5" stroke-dasharray="4,3" x1="${padL}" y1="${yScale(60)}" x2="${W - padR}" y2="${yScale(60)}"></line>`;
+  yTicks += `<text class="chart-label" x="${W - padR - 4}" y="${yScale(60) - 4}" text-anchor="end" fill="${'#b45309'}">Optiver pass ~60</text>`;
+
+  const path = 'M ' + data.map((d, i) => `${xScale(i)},${yScale(d.score)}`).join(' L ');
+  const points = data.map((d, i) => `<circle class="chart-point" cx="${xScale(i)}" cy="${yScale(d.score)}" r="3"><title>${d.date}: ${d.score} (${d.mode})</title></circle>`).join('');
+
+  // X-axis: only show first, middle, last labels
+  let xLabels = '';
+  const xLabelIdx = data.length <= 5 ? data.map((_, i) => i) : [0, Math.floor(data.length / 2), data.length - 1];
+  xLabelIdx.forEach(i => {
+    xLabels += `<text class="chart-label" x="${xScale(i)}" y="${H - padB + 14}" text-anchor="middle">${data[i].date.slice(5)}</text>`;
+  });
+
+  wrap.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    ${yTicks}
+    <line class="chart-axis" x1="${padL}" y1="${padT + innerH}" x2="${W - padR}" y2="${padT + innerH}"></line>
+    <path class="chart-line" d="${path}"></path>
+    ${points}
+    ${xLabels}
+  </svg>`;
+}
+
+async function incrementLC(diff) {
+  state.leetcode.push({ date: isoDate(new Date()), difficulty: diff, name: '(quick)', topic: '' });
+  await Store.set('leetcode', state.leetcode);
+  renderDashboard();
+  renderMetrics();
+  toast('+1 ' + diff);
+}
+
+async function addLC() {
+  const date = document.getElementById('lc-date').value;
+  const difficulty = document.getElementById('lc-diff').value;
+  const name = document.getElementById('lc-name').value || '(unnamed)';
+  const topic = document.getElementById('lc-topic').value;
+  if (!date) { toast('Need date'); return; }
+  state.leetcode.push({ date, difficulty, name, topic });
+  await Store.set('leetcode', state.leetcode);
+  document.getElementById('lc-name').value = '';
+  renderMetrics();
+  renderDashboard();
+  toast('Logged: ' + name);
+}
+
+async function deleteLC(idx) {
+  state.leetcode.splice(idx, 1);
+  await Store.set('leetcode', state.leetcode);
+  renderMetrics(); renderDashboard();
+}
+
+function renderLCStats() {
+  const easy = state.leetcode.filter(l => l.difficulty === 'easy').length;
+  const medium = state.leetcode.filter(l => l.difficulty === 'medium').length;
+  const hard = state.leetcode.filter(l => l.difficulty === 'hard').length;
+  const mediumTarget = 60;
+  document.getElementById('lc-stats').innerHTML = `
+    <div class="stat"><div class="label">Easy</div><div class="value">${easy}</div></div>
+    <div class="stat"><div class="label">Medium</div><div class="value">${medium}</div><div class="delta">target: 60</div></div>
+    <div class="stat"><div class="label">Hard</div><div class="value">${hard}</div><div class="delta">target: 10</div></div>
+    <div class="stat"><div class="label">Total</div><div class="value">${state.leetcode.length}</div></div>
+    <div class="stat"><div class="label">Med · Progress</div><div class="value mono" style="font-size:14px;">${Math.round((medium / mediumTarget) * 100)}%</div>
+      <div class="pbar" style="margin-top:4px;"><div style="width:${Math.min(100, (medium / mediumTarget) * 100)}%"></div></div>
+    </div>
+  `;
+}
+
+function renderLCTable() {
+  const tbody = document.getElementById('lc-tbody');
+  if (!state.leetcode.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">No problems logged yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = state.leetcode.slice().reverse().map((l, i) => {
+    const realIdx = state.leetcode.length - 1 - i;
+    const diffPill = l.difficulty === 'easy' ? 'green' : l.difficulty === 'medium' ? 'yellow' : 'navy';
+    return `<tr>
+      <td class="mono small">${l.date}</td>
+      <td><span class="pill ${diffPill}">${l.difficulty}</span></td>
+      <td>${l.name || '—'}</td>
+      <td class="small muted">${l.topic || '—'}</td>
+      <td><button class="btn small danger" onclick="deleteLC(${realIdx})">×</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderBooksProgress() {
+  const c = document.getElementById('books-progress');
+  c.innerHTML = '';
+  BOOKS.forEach(b => {
+    const data = state.books[b.id] || { status: 'not_started', chapter: 0, notes: '' };
+    const pct = Math.round((data.chapter / b.chapters) * 100);
+    c.innerHTML += `
+      <div class="book-item">
+        <div class="card-title-row">
+          <div>
+            <div class="book-title">${b.title} <span class="priority-tag priority-${b.priority}">${b.priority}</span></div>
+            <div class="book-meta">${b.author} · ${b.note}</div>
+          </div>
+          <span class="pill ${data.chapter >= b.chapters ? 'green' : data.chapter > 0 ? 'yellow' : 'gray'}">${data.chapter >= b.chapters ? 'done' : data.chapter > 0 ? 'reading' : 'not started'}</span>
+        </div>
+        <div class="field-row mt-8">
+          <div class="field" style="max-width:140px;">
+            <label>Current chapter</label>
+            <input type="number" min="0" max="${b.chapters}" value="${data.chapter}" onchange="updateBookChapter('${b.id}', this.value)">
+          </div>
+          <div class="field"><label>Out of</label><div class="mono" style="padding:8px 0;">${b.chapters}</div></div>
+          <div class="field" style="flex:2;"><label>Target</label><div class="small muted" style="padding:6px 0;">${b.target}</div></div>
+        </div>
+        <div class="pbar"><div style="width:${pct}%"></div></div>
+      </div>
+    `;
+  });
+}
+
+async function updateBookChapter(bookId, val) {
+  const ch = parseInt(val);
+  if (!state.books[bookId]) state.books[bookId] = {};
+  state.books[bookId].chapter = ch;
+  await Store.set('books', state.books);
+  renderBooksProgress();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// RESOURCES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function renderResources() {
+  // Books (catalog view)
+  const bl = document.getElementById('books-list');
+  bl.innerHTML = '';
+  BOOKS.forEach(b => {
+    const data = state.books[b.id] || { chapter: 0 };
+    const pct = Math.round((data.chapter / b.chapters) * 100);
+    bl.innerHTML += `
+      <div class="resource-item">
+        <div class="res-title">${b.title} <span class="priority-tag priority-${b.priority}">${b.priority}</span></div>
+        <div class="res-meta">${b.author}</div>
+        <p class="small" style="margin-top:6px;">${b.note}</p>
+        <div class="pbar-row mt-8"><div class="pbar"><div style="width:${pct}%"></div></div><span class="pbar-label">${data.chapter}/${b.chapters}</span></div>
+      </div>
+    `;
+  });
+
+  // Sites
+  const sl = document.getElementById('sites-list');
+  sl.innerHTML = '';
+  SITES.forEach((s, i) => {
+    const used = state.resources['site-' + i]?.used;
+    sl.innerHTML += `
+      <div class="resource-item">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="res-title">${s.name} <span class="priority-tag priority-${s.priority}">${s.priority}</span></div>
+            <div class="res-link"><a href="${s.url}" target="_blank" rel="noopener">${s.url}</a></div>
+            <div class="res-meta" style="margin-top:4px;">${s.meta}</div>
+          </div>
+          <label class="small" style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+            <input type="checkbox" ${used ? 'checked' : ''} onchange="toggleResource('site-${i}')"> bookmarked
+          </label>
+        </div>
+      </div>
+    `;
+  });
+
+  // Firms
+  const fl = document.getElementById('firms-list');
+  fl.innerHTML = '';
+  FIRMS.forEach((f, i) => {
+    const used = state.resources['firm-' + i]?.used;
+    fl.innerHTML += `
+      <div class="resource-item">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="res-title">${f.name}</div>
+            <div class="res-link"><a href="${f.url}" target="_blank" rel="noopener">${f.url}</a></div>
+            <div class="res-meta" style="margin-top:4px;">${f.note}</div>
+          </div>
+          <label class="small" style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+            <input type="checkbox" ${used ? 'checked' : ''} onchange="toggleResource('firm-${i}')"> applied
+          </label>
+        </div>
+      </div>
+    `;
+  });
+
+  // Creds
+  const cl = document.getElementById('creds-list');
+  cl.innerHTML = '';
+  CREDS.forEach((c, i) => {
+    const used = state.resources['cred-' + i]?.used;
+    cl.innerHTML += `
+      <div class="resource-item">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="res-title">${c.name}</div>
+            <div class="res-link"><a href="${c.url}" target="_blank" rel="noopener">${c.url}</a></div>
+            <div class="res-meta" style="margin-top:4px;">${c.note}</div>
+          </div>
+          <label class="small" style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+            <input type="checkbox" ${used ? 'checked' : ''} onchange="toggleResource('cred-${i}')"> done
+          </label>
+        </div>
+      </div>
+    `;
+  });
+}
+
+async function toggleResource(key) {
+  if (!state.resources[key]) state.resources[key] = {};
+  state.resources[key].used = !state.resources[key].used;
+  await Store.set('resources', state.resources);
+  renderResources();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NETWORKING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function addContact() {
+  const name = document.getElementById('ct-name').value.trim();
+  if (!name) { toast('Name required'); return; }
+  const contact = {
+    id: 'c_' + Date.now(),
+    name,
+    firm: document.getElementById('ct-firm').value,
+    role: document.getElementById('ct-role').value,
+    source: document.getElementById('ct-source').value,
+    last: document.getElementById('ct-last').value,
+    next: document.getElementById('ct-next').value,
+    status: document.getElementById('ct-status').value,
+    link: document.getElementById('ct-link').value,
+    notes: document.getElementById('ct-notes').value
+  };
+  state.contacts.push(contact);
+  await Store.set('contacts', state.contacts);
+  ['ct-name','ct-firm','ct-role','ct-source','ct-next','ct-link','ct-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ct-last').value = isoDate(new Date());
+  renderContacts();
+  toast('Contact saved: ' + name);
+}
+
+async function deleteContact(id) {
+  if (!confirm('Delete contact?')) return;
+  state.contacts = state.contacts.filter(c => c.id !== id);
+  await Store.set('contacts', state.contacts);
+  renderContacts();
+}
+
+async function updateContactField(id, field, val) {
+  const c = state.contacts.find(c => c.id === id);
+  if (!c) return;
+  c[field] = val;
+  await Store.set('contacts', state.contacts);
+}
+
+function renderContacts() {
+  const list = document.getElementById('contacts-list');
+  let contacts = state.contacts.slice();
+
+  // Filter
+  const filter = document.getElementById('ct-filter').value.toLowerCase();
+  if (filter) {
+    contacts = contacts.filter(c =>
+      (c.name + ' ' + c.firm + ' ' + c.role + ' ' + c.notes + ' ' + c.source).toLowerCase().includes(filter)
+    );
+  }
+
+  // Sort
+  const sort = document.getElementById('ct-sort').value;
+  if (sort === 'recent') contacts.sort((a, b) => (b.last || '').localeCompare(a.last || ''));
+  if (sort === 'next') contacts.sort((a, b) => {
+    if (!a.next) return 1; if (!b.next) return -1;
+    return a.next.localeCompare(b.next);
+  });
+  if (sort === 'firm') contacts.sort((a, b) => (a.firm || '').localeCompare(b.firm || ''));
+  if (sort === 'status') contacts.sort((a, b) => (a.status || '').localeCompare(b.status || ''));
+
+  if (!contacts.length) {
+    list.innerHTML = '<div class="empty">No contacts yet. Add Maggie Higgins, Gen Masuda, and the FE instructors to get started.</div>';
+    return;
+  }
+
+  list.innerHTML = contacts.map(c => {
+    const today = isoDate(new Date());
+    const nextDue = c.next && c.next <= today;
+    const statusColor = c.status === 'Coffee chat done' || c.status === 'Multi-touch' || c.status === 'Referral path' ? 'green' :
+                        c.status === 'Cold' || c.status === 'Dormant' ? 'gray' :
+                        'yellow';
+    return `
+      <div class="contact-card">
+        <div class="contact-row">
+          <div>
+            <div class="contact-name">${escapeHtml(c.name)} ${c.link ? `· <a href="${escapeHtml(c.link)}" target="_blank" rel="noopener" style="font-size:11px;">link</a>` : ''}</div>
+            <div class="contact-meta">${escapeHtml(c.firm || '')} ${c.role ? '· ' + escapeHtml(c.role) : ''}${c.source ? ' · via ' + escapeHtml(c.source) : ''}</div>
+          </div>
+          <div style="text-align:right;">
+            <span class="pill ${statusColor}">${escapeHtml(c.status || '—')}</span>
+            <div class="small mono muted mt-8">last: ${c.last || '—'}</div>
+            <div class="small mono ${nextDue ? '' : 'muted'}" style="color:${nextDue ? 'var(--red)' : ''};">next: ${c.next || '—'}${nextDue ? ' · DUE' : ''}</div>
+          </div>
+        </div>
+        ${c.notes ? `<div class="contact-notes">${escapeHtml(c.notes)}</div>` : ''}
+        <div class="btn-row mt-8">
+          <button class="btn small secondary" onclick="markContacted('${c.id}')">Just contacted</button>
+          <select onchange="updateContactField('${c.id}', 'status', this.value); renderContacts();" style="font-size:11px;padding:3px 6px;">
+            <option ${c.status === 'Cold' ? 'selected' : ''}>Cold</option>
+            <option ${c.status === 'Reached out' ? 'selected' : ''}>Reached out</option>
+            <option ${c.status === 'Responded' ? 'selected' : ''}>Responded</option>
+            <option ${c.status === 'Coffee chat done' ? 'selected' : ''}>Coffee chat done</option>
+            <option ${c.status === 'Multi-touch' ? 'selected' : ''}>Multi-touch</option>
+            <option ${c.status === 'Referral path' ? 'selected' : ''}>Referral path</option>
+            <option ${c.status === 'Dormant' ? 'selected' : ''}>Dormant</option>
+          </select>
+          <button class="btn small danger" onclick="deleteContact('${c.id}')">delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function markContacted(id) {
+  const c = state.contacts.find(c => c.id === id);
+  if (!c) return;
+  c.last = isoDate(new Date());
+  // Set next follow-up 14 days out by default
+  const d = new Date(); d.setDate(d.getDate() + 14);
+  c.next = isoDate(d);
+  await Store.set('contacts', state.contacts);
+  renderContacts();
+  toast('Logged contact for ' + c.name);
+}
+
+function renderStarterNetwork() {
+  const ul = document.getElementById('network-starter');
+  ul.innerHTML = '';
+  STARTER_NETWORK.forEach(s => {
+    const done = state.starter_network[s.id] === true;
+    ul.innerHTML += `
+      <li class="task ${done ? 'done' : ''}">
+        <input type="checkbox" id="sn-${s.id}" ${done ? 'checked' : ''} onchange="toggleStarter('${s.id}')">
+        <label for="sn-${s.id}">${s.label}</label>
+      </li>
+    `;
+  });
+}
+
+async function toggleStarter(id) {
+  state.starter_network[id] = !state.starter_network[id];
+  await Store.set('starter_network', state.starter_network);
+  renderStarterNetwork();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NOTES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function renderWeeklyNotes() {
+  const c = document.getElementById('weekly-notes');
+  c.innerHTML = '';
+  Object.keys(WEEKS).forEach(wid => {
+    const w = WEEKS[wid];
+    const val = state.notes[wid] || '';
+    c.innerHTML += `
+      <div class="notes-week-block">
+        <div class="card-title-row" style="margin-bottom:6px;">
+          <div><strong>${w.title}</strong> <span class="muted mono small">· ${w.dates}</span></div>
+        </div>
+        <textarea id="note-${wid}" placeholder="Notes for ${w.dates}..." oninput="saveNote('${wid}', this.value)">${escapeHtml(val)}</textarea>
+      </div>
+    `;
+  });
+}
+
+const saveNote = debounce(async (wid, val) => {
+  state.notes[wid] = val;
+  await Store.set('notes', state.notes);
+}, 500);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EXPORT / IMPORT / RESET
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function exportData() {
+  const payload = { ...state, exported: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `quant-prep-${isoDate(new Date())}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported');
+}
+
+async function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!confirm('Import will overwrite current data. Continue?')) return;
+    Object.keys(state).forEach(k => {
+      if (data[k] !== undefined) state[k] = data[k];
+    });
+    await Store.set('tasks', state.tasks);
+    await Store.set('zetamac', state.zetamac);
+    await Store.set('leetcode', state.leetcode);
+    await Store.set('books', state.books);
+    await Store.set('resources', state.resources);
+    await Store.set('contacts', state.contacts);
+    await Store.set('notes', state.notes);
+    await Store.set('general_notes', state.general_notes);
+    await Store.set('narrative', state.narrative);
+    await Store.set('starter_network', state.starter_network);
+    renderAll();
+    document.getElementById('general-notes').value = state.general_notes;
+    document.getElementById('narrative-edit').value = state.narrative;
+    toast('Imported');
+  } catch (err) {
+    toast('Import failed: ' + err.message);
+  }
+  e.target.value = '';
+}
+
+async function resetData() {
+  if (!confirm('Reset ALL data? This will erase every checkbox, log, note, and contact. Cannot be undone.')) return;
+  if (!confirm('Really? Last chance.')) return;
+  state.tasks = {};
+  state.zetamac = [];
+  state.leetcode = [];
+  state.books = {};
+  state.resources = {};
+  state.contacts = [];
+  state.notes = {};
+  state.general_notes = '';
+  state.narrative = '';
+  state.starter_network = {};
+  await Store.set('tasks', {});
+  await Store.set('zetamac', []);
+  await Store.set('leetcode', []);
+  await Store.set('books', {});
+  await Store.set('resources', {});
+  await Store.set('contacts', []);
+  await Store.set('notes', {});
+  await Store.set('general_notes', '');
+  await Store.set('narrative', '');
+  await Store.set('starter_network', {});
+  document.getElementById('general-notes').value = '';
+  document.getElementById('narrative-edit').value = '';
+  renderAll();
+  toast('Reset complete');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function switchTab(name) {
+  document.querySelectorAll('#tab-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function isoDate(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDate(d, withWeekday = false) {
+  const opts = { year: 'numeric', month: 'short', day: 'numeric' };
+  if (withWeekday) opts.weekday = 'short';
+  return d.toLocaleDateString('en-US', opts);
+}
+
+function debounce(fn, ms) {
+  let t;
+  return function (...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Boot
+init();
+
+</script>
+
+</body>
+</html>
