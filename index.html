@@ -681,12 +681,14 @@
       <input type="text" id="modal-sync-gid" placeholder="leave empty on first device — will be created automatically">
       <div class="gist-id-display" id="sync-gist-id">—</div>
     </div>
+    <div id="sync-error" style="display:none;background:var(--red-bg);color:var(--red);border:1px solid var(--red);border-radius:var(--radius);padding:8px 10px;font-size:12px;margin-bottom:10px;word-break:break-word;"></div>
     <div class="btn-row mt-12">
       <button class="btn" onclick="applySyncSettings()">Save &amp; Connect</button>
+      <button class="btn secondary" onclick="testGistConnection()">Test</button>
       <button class="btn secondary" onclick="closeSyncModal()">Cancel</button>
-      <button class="btn danger" onclick="disconnectSync()">Disconnect this device</button>
+      <button class="btn danger" onclick="disconnectSync()">Disconnect</button>
     </div>
-    <p class="small muted mt-12">⚠ PAT is stored in this device's localStorage only. Use a token scoped to <code>gist</code> only to limit blast radius. Never commit it to a repo.</p>
+    <p class="small muted mt-12">⚠ PAT is stored in this device’s localStorage only. Scope it to <code>gist</code> only. Never commit it to a repo.</p>
   </div>
 </div>
 
@@ -813,7 +815,9 @@ async function _pushToGist() {
     }
     setSyncStatus('synced');
   } catch(e) {
+    console.error('[Sync] push failed:', e);
     setSyncStatus('error', e.message.slice(0, 30));
+    setSyncError('❌ Save failed: ' + e.message);
     toast('Gist save failed: ' + e.message);
   }
 }
@@ -834,20 +838,26 @@ function closeSyncModal() {
 async function applySyncSettings() {
   const pat = document.getElementById('modal-sync-pat').value.trim();
   const gid = document.getElementById('modal-sync-gid').value.trim();
-  if (pat === _pat && gid === _gistId) { closeSyncModal(); return; }
+  setSyncError('');  // clear any previous error
 
+  // Always persist whatever was entered, even if unchanged
+  // (removes the silent early-return bug on re-attempts)
   _pat = pat; _gistId = gid;
   try { if (pat) localStorage.setItem(LS_PAT, pat); else localStorage.removeItem(LS_PAT); } catch(e) {}
   try { if (gid) localStorage.setItem(LS_GID, gid); else localStorage.removeItem(LS_GID); } catch(e) {}
-  closeSyncModal();
 
-  if (!pat) { setSyncStatus('local'); toast('Gist sync disabled — local only'); return; }
+  if (!pat) {
+    setSyncStatus('local');
+    closeSyncModal();
+    toast('Gist sync disabled — local only');
+    return;
+  }
 
-  // PAT provided + Gist ID supplied: try loading the existing gist first
+  // PAT + Gist ID provided: load from existing Gist
   if (gid) {
-    toast('Loading from Gist…');
+    setSyncStatus('loading');
+    setSyncError('Connecting…');
     try {
-      setSyncStatus('loading');
       const gist = await gistReq('/gists/' + gid);
       const file = gist.files[GIST_FILE];
       if (file) {
@@ -856,7 +866,9 @@ async function applySyncSettings() {
           const v = loaded[k];
           return Array.isArray(v) ? v.length > 0 : (typeof v === 'object' ? Object.keys(v).length > 0 : !!v);
         });
-        if (hasData && confirm('Gist has existing data — load it?\n\nOK = load Gist data (overwrites local)\nCancel = keep local data (overwrites Gist on next change)')) {
+        setSyncError('');
+        closeSyncModal();
+        if (hasData && confirm('Gist has existing data — load it?\n\nOK = load Gist data (overwrites local)\nCancel = keep local data (overwrites Gist on next save)')) {
           STATE_KEYS.forEach(k => { state[k] = loaded[k]; });
           renderAll();
           const gn = document.getElementById('general-notes'); if (gn) gn.value = state.general_notes;
@@ -865,22 +877,37 @@ async function applySyncSettings() {
         setSyncStatus('synced');
         const gidEl = document.getElementById('sync-gist-id'); if (gidEl) gidEl.textContent = gid;
         toast('✓ Connected and synced');
-        return;
+      } else {
+        setSyncError('⚠ Gist found but quant_prep_data.json missing. Check Gist ID.');
+        setSyncStatus('error');
       }
     } catch(e) {
-      setSyncStatus('error', e.message.slice(0, 40));
-      toast('Could not load Gist: ' + e.message);
-      return;
+      console.error('[Sync] load failed:', e);
+      setSyncError('❌ ' + e.message + ' — check your PAT has gist scope and the Gist ID is correct.');
+      setSyncStatus('error');
     }
+    return;
   }
 
-  // No Gist ID yet (first device) — push current state immediately to create the Gist
-  toast('Creating Gist…');
+  // No Gist ID: first device — create a new Gist immediately with current state
+  setSyncStatus('saving');
+  setSyncError('Creating new private Gist…');
   await _pushToGist();
   if (_gistId) {
-    openSyncModal();   // re-open to show the new Gist ID so user can copy it
-    toast('✓ Gist created! Copy the Gist ID above to use on other devices.');
+    setSyncError('');
+    // Re-open so user can copy the Gist ID
+    document.getElementById('modal-sync-gid').value = _gistId;
+    const gidEl = document.getElementById('sync-gist-id'); if (gidEl) gidEl.textContent = _gistId;
+    toast('✓ Gist created — copy the ID below to use on other devices!');
   }
+  // If _pushToGist failed it already set the error status; leave modal open
+}
+
+function setSyncError(msg) {
+  const el = document.getElementById('sync-error');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
 }
 
 async function disconnectSync() {
@@ -890,6 +917,38 @@ async function disconnectSync() {
   setSyncStatus('local');
   closeSyncModal();
   toast('Disconnected. Running local only on this device.');
+}
+
+async function testGistConnection() {
+  const pat = document.getElementById('modal-sync-pat').value.trim();
+  setSyncError('');
+  if (!pat) { setSyncError('⚠ Enter a PAT first.'); return; }
+  setSyncError('Testing…');
+  try {
+    // Step 1: verify PAT works at all
+    const user = await fetch('https://api.github.com/user', {
+      headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!user.ok) {
+      const d = await user.json().catch(()=>({}));
+      setSyncError('❌ PAT rejected: ' + (d.message || 'HTTP ' + user.status) + '. Check the token is valid and has not expired.');
+      return;
+    }
+    const userData = await user.json();
+    // Step 2: check gist scope by listing gists
+    const gistsResp = await fetch('https://api.github.com/gists?per_page=1', {
+      headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    const scopeHeader = gistsResp.headers.get('x-oauth-scopes') || gistsResp.headers.get('X-OAuth-Scopes') || '(header not visible)';
+    if (!gistsResp.ok) {
+      setSyncError('❌ Gist API returned ' + gistsResp.status + '. Token may lack gist scope. Scopes: ' + scopeHeader);
+      return;
+    }
+    setSyncError('✓ PAT valid — authenticated as ' + userData.login + '. Gist API reachable. Scopes: ' + scopeHeader + '. You can now Save & Connect.');
+  } catch(e) {
+    console.error('[Sync test]', e);
+    setSyncError('❌ Network error: ' + e.message + '. Check browser console for details. This may be a CORS or network block.');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
