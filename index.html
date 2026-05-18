@@ -304,6 +304,35 @@
     .header-top h1 { font-size: 18px; }
     .countdown .value { font-size: 24px; }
   }
+
+  /* SYNC MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(20,20,20,.45); align-items: center; justify-content: center;
+  }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: 10px; padding: 24px; width: 100%; max-width: 480px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.16); margin: 16px;
+  }
+  .modal h3 { margin-bottom: 4px; font-size: 17px; }
+  .modal .modal-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+  .modal .modal-section { background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; }
+  .modal .modal-section strong { color: var(--text); }
+  .modal .modal-section ol { padding-left: 16px; margin-top: 6px; }
+  .modal .modal-section li { margin-bottom: 4px; }
+  .modal .modal-section code { font-family: 'JetBrains Mono', monospace; background: var(--border);
+    padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+  .sync-status-wrap { display: flex; align-items: center; gap: 10px; }
+  #sync-status { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--accent);
+    cursor: pointer; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--surface-2); white-space: nowrap; }
+  #sync-status:hover { border-color: var(--border-strong); }
+  .gist-id-display { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);
+    word-break: break-all; padding: 6px 8px; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-top: 6px; min-height: 28px; }
+
 </style>
 </head>
 <body>
@@ -315,6 +344,8 @@
       <div class="header-sub">Nipun Nagendra · Cornell '29 · Shay Capital · <span class="mono" id="today-date"></span></div>
     </div>
     <div class="btn-row">
+      <span id="sync-status" onclick="openSyncModal()" title="Click to configure Gist sync">◉ Local only</span>
+      <button class="btn small secondary" onclick="openSyncModal()">☁ Sync</button>
       <button class="btn small secondary" id="export-data">Export</button>
       <button class="btn small secondary" id="import-data">Import</button>
       <input type="file" id="import-file" accept=".json" style="display:none">
@@ -626,6 +657,39 @@
 
   </section>
 
+
+<!-- SYNC SETTINGS MODAL -->
+<div class="modal-overlay" id="sync-modal" onclick="if(event.target===this)closeSyncModal()">
+  <div class="modal">
+    <h3>☁ Cloud Sync via GitHub Gist</h3>
+    <p class="modal-sub">Your data lives in a private Gist. PAT is per-device. Gist ID is shared across devices.</p>
+    <div class="modal-section">
+      <strong>One-time setup:</strong>
+      <ol>
+        <li>GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)</li>
+        <li>Generate new token → check only the <code>gist</code> scope → copy it</li>
+        <li>Paste below → Save. A private Gist is created automatically on first save.</li>
+        <li>Copy the Gist ID below and enter it on your other devices (with the same or a new PAT).</li>
+      </ol>
+    </div>
+    <div class="field">
+      <label>GitHub Personal Access Token <span style="font-weight:400;color:var(--text-muted)">(gist scope only)</span></label>
+      <input type="password" id="modal-sync-pat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Gist ID <span style="font-weight:400;color:var(--text-muted)">(auto-created on first save; copy to other devices)</span></label>
+      <input type="text" id="modal-sync-gid" placeholder="leave empty on first device — will be created automatically">
+      <div class="gist-id-display" id="sync-gist-id">—</div>
+    </div>
+    <div class="btn-row mt-12">
+      <button class="btn" onclick="applySyncSettings()">Save &amp; Connect</button>
+      <button class="btn secondary" onclick="closeSyncModal()">Cancel</button>
+      <button class="btn danger" onclick="disconnectSync()">Disconnect this device</button>
+    </div>
+    <p class="small muted mt-12">⚠ PAT is stored in this device's localStorage only. Use a token scoped to <code>gist</code> only to limit blast radius. Never commit it to a repo.</p>
+  </div>
+</div>
+
 </main>
 
 <div class="toast" id="toast"></div>
@@ -633,56 +697,178 @@
 <script>
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// STORAGE ADAPTER — uses window.storage if present (Claude artifact),
-// else localStorage (downloaded standalone), else in-memory (last resort).
+// GIST STORAGE — cross-device sync via GitHub Gist API
+// PAT is stored in localStorage per-device (auth credential stays local).
+// Gist ID is stored in localStorage — copy it across devices to share data.
+// All state serialized as one file: quant_prep_data.json in a private gist.
+// Falls back to localStorage['qp_state_local'] when gist is not configured.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const Mem = {};
-const Store = {
-  async get(key, fallback = null) {
-    try {
-      if (window.storage && typeof window.storage.get === 'function') {
-        const r = await window.storage.get(key);
-        if (r && r.value != null) return JSON.parse(r.value);
-        return fallback;
-      }
-    } catch (e) { /* fall through */ }
-    try {
-      const v = localStorage.getItem(key);
-      return v != null ? JSON.parse(v) : fallback;
-    } catch (e) {
-      return Mem[key] != null ? Mem[key] : fallback;
+const GIST_FILE  = 'quant_prep_data.json';
+const LS_PAT     = 'qp_gist_pat';
+const LS_GID     = 'qp_gist_id';
+const LS_STATE   = 'qp_state_local';
+
+let _pat    = '';
+let _gistId = '';
+try { _pat    = localStorage.getItem(LS_PAT)  || ''; } catch(e){}
+try { _gistId = localStorage.getItem(LS_GID)  || ''; } catch(e){}
+
+function setSyncStatus(s, detail) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const map = {
+    saving:  ['⟳ Saving…',   'var(--text-muted)'],
+    synced:  ['✓ Synced',     'var(--green)'],
+    error:   ['✗ Error',      'var(--red)'],
+    local:   ['◉ Local only', 'var(--accent)'],
+    loading: ['⟳ Loading…',   'var(--text-muted)']
+  };
+  const [txt, col] = map[s] || map.local;
+  el.textContent  = detail ? txt + ' — ' + detail : txt;
+  el.style.color  = col;
+}
+
+async function gistReq(path, opts = {}) {
+  const res = await fetch('https://api.github.com' + path, {
+    ...opts,
+    headers: {
+      'Authorization': 'token ' + _pat,
+      'Content-Type':  'application/json',
+      'Accept':        'application/vnd.github.v3+json',
+      ...(opts.headers || {})
     }
-  },
-  async set(key, value) {
-    const v = JSON.stringify(value);
-    try {
-      if (window.storage && typeof window.storage.set === 'function') {
-        await window.storage.set(key, v);
-        return;
-      }
-    } catch (e) { /* fall through */ }
-    try {
-      localStorage.setItem(key, v);
-      return;
-    } catch (e) {
-      Mem[key] = value;
-    }
-  },
-  async listKeys() {
-    try {
-      if (window.storage && typeof window.storage.list === 'function') {
-        const r = await window.storage.list();
-        return r ? r.keys : [];
-      }
-    } catch (e) { /* fall through */ }
-    try {
-      return Object.keys(localStorage);
-    } catch (e) {
-      return Object.keys(Mem);
-    }
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || ('HTTP ' + res.status));
   }
-};
+  return res.status === 204 ? null : res.json();
+}
+
+const STATE_KEYS     = ['tasks','zetamac','leetcode','books','resources','contacts','notes','general_notes','narrative','starter_network'];
+const STATE_DEFAULTS = { tasks:{}, zetamac:[], leetcode:[], books:{}, resources:{}, contacts:[], notes:{}, general_notes:'', narrative:'', starter_network:{} };
+
+async function loadState() {
+  if (_pat && _gistId) {
+    try {
+      setSyncStatus('loading');
+      const gist = await gistReq('/gists/' + _gistId);
+      const file  = gist.files[GIST_FILE];
+      if (file) {
+        const loaded = JSON.parse(file.content);
+        setSyncStatus('synced');
+        const gidEl = document.getElementById('sync-gist-id');
+        if (gidEl) gidEl.textContent = _gistId;
+        return { ...STATE_DEFAULTS, ...loaded };
+      }
+    } catch(e) {
+      setSyncStatus('error', e.message.slice(0, 30));
+      toast('Gist load failed: ' + e.message + ' — using local data.');
+    }
+  } else {
+    setSyncStatus('local');
+  }
+  try {
+    const raw = localStorage.getItem(LS_STATE);
+    if (raw) return { ...STATE_DEFAULTS, ...JSON.parse(raw) };
+  } catch(e) {}
+  return { ...STATE_DEFAULTS };
+}
+
+async function saveState() {
+  // Immediate localStorage backup (synchronous-ish, fire-and-forget)
+  try { localStorage.setItem(LS_STATE, JSON.stringify(state)); } catch(e) {}
+  // Debounced Gist push
+  _debouncedPush();
+}
+
+const _debouncedPush = debounce(_pushToGist, 1400);
+
+async function _pushToGist() {
+  if (!_pat) return;
+  setSyncStatus('saving');
+  const content = JSON.stringify(state, null, 2);
+  try {
+    if (!_gistId) {
+      // First save on this device + PAT — create a new private gist
+      const gist = await gistReq('/gists', {
+        method: 'POST',
+        body: JSON.stringify({
+          description: 'Quant Prep Tracker — Nipun N. Summer 2026',
+          public: false,
+          files: { [GIST_FILE]: { content } }
+        })
+      });
+      _gistId = gist.id;
+      try { localStorage.setItem(LS_GID, _gistId); } catch(e) {}
+      const gidEl = document.getElementById('sync-gist-id'); if (gidEl) gidEl.textContent = _gistId;
+      const inp   = document.getElementById('modal-sync-gid'); if (inp) inp.value = _gistId;
+    } else {
+      await gistReq('/gists/' + _gistId, {
+        method: 'PATCH',
+        body: JSON.stringify({ files: { [GIST_FILE]: { content } } })
+      });
+    }
+    setSyncStatus('synced');
+  } catch(e) {
+    setSyncStatus('error', e.message.slice(0, 30));
+    toast('Gist save failed: ' + e.message);
+  }
+}
+
+// ── Sync modal ──────────────────────────────────────────────────────────────
+function openSyncModal() {
+  document.getElementById('modal-sync-pat').value = _pat;
+  document.getElementById('modal-sync-gid').value = _gistId;
+  const gidEl = document.getElementById('sync-gist-id');
+  if (gidEl) gidEl.textContent = _gistId || '(will be auto-created on first save)';
+  document.getElementById('sync-modal').style.display = 'flex';
+}
+
+function closeSyncModal() {
+  document.getElementById('sync-modal').style.display = 'none';
+}
+
+async function applySyncSettings() {
+  const pat = document.getElementById('modal-sync-pat').value.trim();
+  const gid = document.getElementById('modal-sync-gid').value.trim();
+  if (pat === _pat && gid === _gistId) { closeSyncModal(); return; }
+  _pat = pat;
+  _gistId = gid;
+  try { localStorage.setItem(LS_PAT, pat); } catch(e) {}
+  try { if (gid) localStorage.setItem(LS_GID, gid); else localStorage.removeItem(LS_GID); } catch(e) {}
+  closeSyncModal();
+  if (pat) {
+    toast('Connecting…');
+    const loaded = await loadState();
+    const hasData = STATE_KEYS.some(k => {
+      const v = loaded[k];
+      return Array.isArray(v) ? v.length > 0 : (typeof v === 'object' ? Object.keys(v).length > 0 : !!v);
+    });
+    if (hasData) {
+      if (confirm('Gist has existing data — load it? (Cancel to keep current local data; it will overwrite the Gist on next change.)')) {
+        STATE_KEYS.forEach(k => { state[k] = loaded[k]; });
+        renderAll();
+        const gn = document.getElementById('general-notes'); if (gn) gn.value = state.general_notes;
+        const nv = document.getElementById('narrative-edit'); if (nv) nv.value = state.narrative;
+      }
+    }
+    toast(_gistId ? '✓ Connected to Gist' : '✓ PAT saved — Gist will be created on first save');
+  } else {
+    setSyncStatus('local');
+    toast('Gist sync disabled — running local only');
+  }
+}
+
+async function disconnectSync() {
+  if (!confirm('Remove Gist credentials from this device? Your data stays safe in the Gist — you can reconnect anytime.')) return;
+  _pat = ''; _gistId = '';
+  try { localStorage.removeItem(LS_PAT); localStorage.removeItem(LS_GID); } catch(e) {}
+  setSyncStatus('local');
+  closeSyncModal();
+  toast('Disconnected. Running local only on this device.');
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PLAN DATA — Week-by-week from May 18 → Aug 31, 2026
@@ -1305,17 +1491,13 @@ const state = {
 async function init() {
   document.getElementById('today-date').textContent = formatDate(new Date(), true);
 
-  // Load state
-  state.tasks = await Store.get('tasks', {});
-  state.zetamac = await Store.get('zetamac', []);
-  state.leetcode = await Store.get('leetcode', []);
-  state.books = await Store.get('books', {});
-  state.resources = await Store.get('resources', {});
-  state.contacts = await Store.get('contacts', []);
-  state.notes = await Store.get('notes', {});
-  state.general_notes = await Store.get('general_notes', '');
-  state.narrative = await Store.get('narrative', '');
-  state.starter_network = await Store.get('starter_network', {});
+  // Load state from Gist (cross-device) or localStorage (fallback)
+  const _loaded = await loadState();
+  STATE_KEYS.forEach(k => { state[k] = _loaded[k]; });
+  if (_gistId) {
+    const gidEl = document.getElementById('sync-gist-id');
+    if (gidEl) gidEl.textContent = _gistId;
+  }
 
   // Init forms
   const today = isoDate(new Date());
@@ -1333,14 +1515,14 @@ async function init() {
   gn.value = state.general_notes;
   gn.oninput = debounce(async () => {
     state.general_notes = gn.value;
-    await Store.set('general_notes', gn.value);
+    saveState();
   }, 400);
 
   const nv = document.getElementById('narrative-edit');
   nv.value = state.narrative;
   nv.oninput = debounce(async () => {
     state.narrative = nv.value;
-    await Store.set('narrative', nv.value);
+    saveState();
   }, 400);
 
   // Wire export/import/reset
@@ -1449,7 +1631,7 @@ function renderDashboard() {
 async function toggleDaily(key) {
   const checked = document.getElementById(key).checked;
   state[key] = checked;
-  await Store.set(key, checked);
+  saveState();
   renderDashboard();
 }
 
@@ -1543,7 +1725,7 @@ async function toggleTask(wid, tid) {
   cur.done = !cur.done;
   cur.date = cur.done ? isoDate(new Date()) : null;
   state.tasks[wid][tid] = cur;
-  await Store.set('tasks', state.tasks);
+  saveState();
   // Re-render only what changed: the relevant week, dashboard, this-week-tasks
   renderPlan();
   renderDashboard();
@@ -1627,7 +1809,7 @@ async function addZetamac() {
   if (!date || !score) { toast('Need date + score'); return; }
   state.zetamac.push({ date, score, mode });
   state.zetamac.sort((a, b) => a.date.localeCompare(b.date));
-  await Store.set('zetamac', state.zetamac);
+  saveState();
   document.getElementById('zm-score').value = '';
   renderMetrics();
   renderDashboard();
@@ -1640,7 +1822,7 @@ async function addZetamacQuick() {
   if (!score) { toast('Need score'); return; }
   state.zetamac.push({ date: isoDate(new Date()), score, mode });
   state.zetamac.sort((a, b) => a.date.localeCompare(b.date));
-  await Store.set('zetamac', state.zetamac);
+  saveState();
   document.getElementById('zm-score-quick').value = '';
   renderMetrics();
   renderDashboard();
@@ -1649,7 +1831,7 @@ async function addZetamacQuick() {
 
 async function deleteZetamac(idx) {
   state.zetamac.splice(idx, 1);
-  await Store.set('zetamac', state.zetamac);
+  saveState();
   renderMetrics(); renderDashboard();
 }
 
@@ -1725,7 +1907,7 @@ function renderZetamacChart() {
 
 async function incrementLC(diff) {
   state.leetcode.push({ date: isoDate(new Date()), difficulty: diff, name: '(quick)', topic: '' });
-  await Store.set('leetcode', state.leetcode);
+  saveState();
   renderDashboard();
   renderMetrics();
   toast('+1 ' + diff);
@@ -1738,7 +1920,7 @@ async function addLC() {
   const topic = document.getElementById('lc-topic').value;
   if (!date) { toast('Need date'); return; }
   state.leetcode.push({ date, difficulty, name, topic });
-  await Store.set('leetcode', state.leetcode);
+  saveState();
   document.getElementById('lc-name').value = '';
   renderMetrics();
   renderDashboard();
@@ -1747,7 +1929,7 @@ async function addLC() {
 
 async function deleteLC(idx) {
   state.leetcode.splice(idx, 1);
-  await Store.set('leetcode', state.leetcode);
+  saveState();
   renderMetrics(); renderDashboard();
 }
 
@@ -1819,7 +2001,7 @@ async function updateBookChapter(bookId, val) {
   const ch = parseInt(val);
   if (!state.books[bookId]) state.books[bookId] = {};
   state.books[bookId].chapter = ch;
-  await Store.set('books', state.books);
+  saveState();
   renderBooksProgress();
 }
 
@@ -1911,7 +2093,7 @@ function renderResources() {
 async function toggleResource(key) {
   if (!state.resources[key]) state.resources[key] = {};
   state.resources[key].used = !state.resources[key].used;
-  await Store.set('resources', state.resources);
+  saveState();
   renderResources();
 }
 
@@ -1935,7 +2117,7 @@ async function addContact() {
     notes: document.getElementById('ct-notes').value
   };
   state.contacts.push(contact);
-  await Store.set('contacts', state.contacts);
+  saveState();
   ['ct-name','ct-firm','ct-role','ct-source','ct-next','ct-link','ct-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('ct-last').value = isoDate(new Date());
   renderContacts();
@@ -1945,7 +2127,7 @@ async function addContact() {
 async function deleteContact(id) {
   if (!confirm('Delete contact?')) return;
   state.contacts = state.contacts.filter(c => c.id !== id);
-  await Store.set('contacts', state.contacts);
+  saveState();
   renderContacts();
 }
 
@@ -1953,7 +2135,7 @@ async function updateContactField(id, field, val) {
   const c = state.contacts.find(c => c.id === id);
   if (!c) return;
   c[field] = val;
-  await Store.set('contacts', state.contacts);
+  saveState();
 }
 
 function renderContacts() {
@@ -2028,7 +2210,7 @@ async function markContacted(id) {
   // Set next follow-up 14 days out by default
   const d = new Date(); d.setDate(d.getDate() + 14);
   c.next = isoDate(d);
-  await Store.set('contacts', state.contacts);
+  saveState();
   renderContacts();
   toast('Logged contact for ' + c.name);
 }
@@ -2049,7 +2231,7 @@ function renderStarterNetwork() {
 
 async function toggleStarter(id) {
   state.starter_network[id] = !state.starter_network[id];
-  await Store.set('starter_network', state.starter_network);
+  saveState();
   renderStarterNetwork();
 }
 
@@ -2076,7 +2258,7 @@ function renderWeeklyNotes() {
 
 const saveNote = debounce(async (wid, val) => {
   state.notes[wid] = val;
-  await Store.set('notes', state.notes);
+  saveState();
 }, 500);
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2105,16 +2287,7 @@ async function importData(e) {
     Object.keys(state).forEach(k => {
       if (data[k] !== undefined) state[k] = data[k];
     });
-    await Store.set('tasks', state.tasks);
-    await Store.set('zetamac', state.zetamac);
-    await Store.set('leetcode', state.leetcode);
-    await Store.set('books', state.books);
-    await Store.set('resources', state.resources);
-    await Store.set('contacts', state.contacts);
-    await Store.set('notes', state.notes);
-    await Store.set('general_notes', state.general_notes);
-    await Store.set('narrative', state.narrative);
-    await Store.set('starter_network', state.starter_network);
+    await saveState();
     renderAll();
     document.getElementById('general-notes').value = state.general_notes;
     document.getElementById('narrative-edit').value = state.narrative;
@@ -2138,16 +2311,7 @@ async function resetData() {
   state.general_notes = '';
   state.narrative = '';
   state.starter_network = {};
-  await Store.set('tasks', {});
-  await Store.set('zetamac', []);
-  await Store.set('leetcode', []);
-  await Store.set('books', {});
-  await Store.set('resources', {});
-  await Store.set('contacts', []);
-  await Store.set('notes', {});
-  await Store.set('general_notes', '');
-  await Store.set('narrative', '');
-  await Store.set('starter_network', {});
+  await saveState();
   document.getElementById('general-notes').value = '';
   document.getElementById('narrative-edit').value = '';
   renderAll();
