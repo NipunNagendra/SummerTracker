@@ -674,7 +674,14 @@
     </div>
     <div class="field">
       <label>GitHub Personal Access Token <span style="font-weight:400;color:var(--text-muted)">(gist scope only)</span></label>
-      <input type="password" id="modal-sync-pat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="text" id="modal-sync-pat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+        <button type="button" class="btn small secondary" onclick="
+          const f=document.getElementById('modal-sync-pat');
+          f.type=f.type==='password'?'text':'password';
+          this.textContent=f.type==='password'?'Show':'Hide';
+        " style="flex-shrink:0;">Hide</button>
+      </div>
     </div>
     <div class="field">
       <label>Gist ID <span style="font-weight:400;color:var(--text-muted)">(auto-created on first save; copy to other devices)</span></label>
@@ -824,6 +831,7 @@ async function _pushToGist() {
 
 // ── Sync modal ──────────────────────────────────────────────────────────────
 function openSyncModal() {
+  console.log('[Sync] openSyncModal: _pat length=', _pat.length, '_gistId=', _gistId || '(empty)');
   document.getElementById('modal-sync-pat').value = _pat;
   document.getElementById('modal-sync-gid').value = _gistId;
   const gidEl = document.getElementById('sync-gist-id');
@@ -839,6 +847,7 @@ async function applySyncSettings() {
   const pat = document.getElementById('modal-sync-pat').value.trim();
   const gid = document.getElementById('modal-sync-gid').value.trim();
   setSyncError('');  // clear any previous error
+  console.log('[Sync] applySyncSettings: pat length=', pat.length, 'gid=', gid || '(empty)');
 
   // Always persist whatever was entered, even if unchanged
   // (removes the silent early-return bug on re-attempts)
