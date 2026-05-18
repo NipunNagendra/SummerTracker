@@ -730,12 +730,13 @@ function setSyncStatus(s, detail) {
 }
 
 async function gistReq(path, opts = {}) {
+  const isWrite = opts.method && opts.method !== 'GET';
   const res = await fetch('https://api.github.com' + path, {
     ...opts,
     headers: {
-      'Authorization': 'token ' + _pat,
-      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + _pat,   // Bearer works for both classic + fine-grained PATs
       'Accept':        'application/vnd.github.v3+json',
+      ...(isWrite ? { 'Content-Type': 'application/json' } : {}),
       ...(opts.headers || {})
     }
   });
@@ -834,30 +835,51 @@ async function applySyncSettings() {
   const pat = document.getElementById('modal-sync-pat').value.trim();
   const gid = document.getElementById('modal-sync-gid').value.trim();
   if (pat === _pat && gid === _gistId) { closeSyncModal(); return; }
-  _pat = pat;
-  _gistId = gid;
-  try { localStorage.setItem(LS_PAT, pat); } catch(e) {}
+
+  _pat = pat; _gistId = gid;
+  try { if (pat) localStorage.setItem(LS_PAT, pat); else localStorage.removeItem(LS_PAT); } catch(e) {}
   try { if (gid) localStorage.setItem(LS_GID, gid); else localStorage.removeItem(LS_GID); } catch(e) {}
   closeSyncModal();
-  if (pat) {
-    toast('Connecting…');
-    const loaded = await loadState();
-    const hasData = STATE_KEYS.some(k => {
-      const v = loaded[k];
-      return Array.isArray(v) ? v.length > 0 : (typeof v === 'object' ? Object.keys(v).length > 0 : !!v);
-    });
-    if (hasData) {
-      if (confirm('Gist has existing data — load it? (Cancel to keep current local data; it will overwrite the Gist on next change.)')) {
-        STATE_KEYS.forEach(k => { state[k] = loaded[k]; });
-        renderAll();
-        const gn = document.getElementById('general-notes'); if (gn) gn.value = state.general_notes;
-        const nv = document.getElementById('narrative-edit'); if (nv) nv.value = state.narrative;
+
+  if (!pat) { setSyncStatus('local'); toast('Gist sync disabled — local only'); return; }
+
+  // PAT provided + Gist ID supplied: try loading the existing gist first
+  if (gid) {
+    toast('Loading from Gist…');
+    try {
+      setSyncStatus('loading');
+      const gist = await gistReq('/gists/' + gid);
+      const file = gist.files[GIST_FILE];
+      if (file) {
+        const loaded = JSON.parse(file.content);
+        const hasData = STATE_KEYS.some(k => {
+          const v = loaded[k];
+          return Array.isArray(v) ? v.length > 0 : (typeof v === 'object' ? Object.keys(v).length > 0 : !!v);
+        });
+        if (hasData && confirm('Gist has existing data — load it?\n\nOK = load Gist data (overwrites local)\nCancel = keep local data (overwrites Gist on next change)')) {
+          STATE_KEYS.forEach(k => { state[k] = loaded[k]; });
+          renderAll();
+          const gn = document.getElementById('general-notes'); if (gn) gn.value = state.general_notes;
+          const nv = document.getElementById('narrative-edit'); if (nv) nv.value = state.narrative;
+        }
+        setSyncStatus('synced');
+        const gidEl = document.getElementById('sync-gist-id'); if (gidEl) gidEl.textContent = gid;
+        toast('✓ Connected and synced');
+        return;
       }
+    } catch(e) {
+      setSyncStatus('error', e.message.slice(0, 40));
+      toast('Could not load Gist: ' + e.message);
+      return;
     }
-    toast(_gistId ? '✓ Connected to Gist' : '✓ PAT saved — Gist will be created on first save');
-  } else {
-    setSyncStatus('local');
-    toast('Gist sync disabled — running local only');
+  }
+
+  // No Gist ID yet (first device) — push current state immediately to create the Gist
+  toast('Creating Gist…');
+  await _pushToGist();
+  if (_gistId) {
+    openSyncModal();   // re-open to show the new Gist ID so user can copy it
+    toast('✓ Gist created! Copy the Gist ID above to use on other devices.');
   }
 }
 
